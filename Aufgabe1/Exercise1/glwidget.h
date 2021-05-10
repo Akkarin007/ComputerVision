@@ -56,9 +56,12 @@ private:
   void cleanup();
   void drawFrameAxis();
   void drawPointCloud();
+  void initQuader();
   
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
+
+  std::vector<std::pair<QVector3D, QColor> > _quaderLines;
 
   QPoint _prevMousePosition;
   QOpenGLVertexArrayObject _vao;
