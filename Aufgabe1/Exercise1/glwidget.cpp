@@ -143,27 +143,27 @@ void GLWidget::paintGL()
 
 void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVector4D translation, float size)
 {
-    QMatrix4x4 translateMatrix;
-    translateMatrix.setToIdentity();
-    translateMatrix.setColumn(3, translation);
+    QMatrix4x4 translationMatrix;
+    translationMatrix.setToIdentity();
+    translationMatrix.setColumn(3, translation);
 
     QVector3D a1 = QVector3D(0.0, 0.0, 0.0);
     QVector3D a2 = QVector3D(1.0, 0.0, 0.0);
     QVector3D a3 = QVector3D(1.0, 1.0, 0.0);
     QVector3D a4 = QVector3D(0.0, 1.0, 0.0);
-    a1 = translateMatrix * a1 * size;
-    a2 = translateMatrix * a2 * size;
-    a3 = translateMatrix * a3 * size;
-    a4 = translateMatrix * a4 * size;
+    a1 = translationMatrix * a1 * size;
+    a2 = translationMatrix * a2 * size;
+    a3 = translationMatrix * a3 * size;
+    a4 = translationMatrix * a4 * size;
 
     QVector3D b1 = QVector3D(0.0, 0.0, 1.0);
     QVector3D b2 = QVector3D(1.0, 0.0, 1.0);
     QVector3D b3 = QVector3D(1.0, 1.0, 1.0);
     QVector3D b4 = QVector3D(0.0, 1.0, 1.0);
-    b1 = translateMatrix * b1 * size;
-    b2 = translateMatrix * b2 * size;
-    b3 = translateMatrix * b3 * size;
-    b4 = translateMatrix * b4 * size;
+    b1 = translationMatrix * b1 * size;
+    b2 = translationMatrix * b2 * size;
+    b3 = translationMatrix * b3 * size;
+    b4 = translationMatrix * b4 * size;
 
     quader.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
     quader.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
@@ -210,19 +210,19 @@ void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVe
 
 void GLWidget::initPerspectiveCameraModel(QVector4D translation)
 {
-    QMatrix4x4 translateMatrix;
-    translateMatrix.setToIdentity();
-    translateMatrix.setColumn(3, translation);
+    QMatrix4x4 translationMatrix;
+    translationMatrix.setToIdentity();
+    translationMatrix.setColumn(3, translation);
 
     QVector3D center = QVector3D(0.0, 0.0, 0.0);
     QVector3D x = QVector3D(1.0, 0.0, 0.0);
     QVector3D y = QVector3D(0.0, 1.0, 0.0);
     QVector3D z = QVector3D(0.0, 0.0, 1.0);
 
-    center = translateMatrix * center;
-    x = translateMatrix * x;
-    y = translateMatrix * y;
-    z = translateMatrix * z;
+    center = translationMatrix * center;
+    x = translationMatrix * x;
+    y = translationMatrix * y;
+    z = translationMatrix * z;
 
     _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(1.0, 0.0, 0.0)));
     _perspectiveCameraModelAxesLines.push_back(std::make_pair(x, QColor(1.0, 0.0, 0.0)));
