@@ -25,6 +25,7 @@
 #include <limits>
 #include <utility>
 
+#define PI 3.14159265
 #include "mainwindow.h"
 
 //static const size_t POINT_STRIDE = 4; // x, y, z, index
@@ -75,6 +76,70 @@ void GLWidget::initializeGL()
   createContainers();
 }
 
+
+QMatrix4x4 GLWidget::rotation_z(float alpha)
+{
+    //alpha1
+    float theta = alpha * PI / 180.0;
+    float c = cosf(theta);
+    float s = sinf(theta);
+    QVector4D v1 = QVector4D(c, -s, 0, 0);
+    QVector4D v2 = QVector4D(s, c, 0, 0);
+    QVector4D v3 = QVector4D(0, 0, 1, 0);
+    QVector4D v4 = QVector4D(0, 0, 0, 1);
+
+    QMatrix4x4 matrix;
+    matrix.setToIdentity();
+    matrix.setColumn(0, v1);
+    matrix.setColumn(1, v2);
+    matrix.setColumn(2, v3);
+    matrix.setColumn(3, v4);
+
+    return matrix;
+}
+
+QMatrix4x4 GLWidget::rotation_x(float alpha)
+{
+    //alpha1
+    float theta = alpha * PI / 180.0;
+    float c = cosf(theta);
+    float s = sinf(theta);
+    QVector4D v1 = QVector4D(1,0,0,0);
+    QVector4D v2 = QVector4D(0, c, -s, 0);
+    QVector4D v3 = QVector4D(0, s, c, 0);
+    QVector4D v4 = QVector4D(0, 0, 0, 1);
+
+    QMatrix4x4 matrix;
+    matrix.setToIdentity();
+    matrix.setColumn(0, v1);
+    matrix.setColumn(1, v2);
+    matrix.setColumn(2, v3);
+    matrix.setColumn(3, v4);
+
+    return matrix;
+}
+
+QMatrix4x4 GLWidget::rotation_y(float alpha)
+{
+    //alpha1
+    float theta = alpha * PI / 180.0;
+    float c = cosf(theta);
+    float s = sinf(theta);
+    QVector4D v1 = QVector4D(c, 0, s, 0);
+    QVector4D v2 = QVector4D(0, 1, 0, 0);
+    QVector4D v3 = QVector4D(-s, 0, c, 0);
+    QVector4D v4 = QVector4D(0, 0, 0, 1);
+
+    QMatrix4x4 matrix;
+    matrix.setToIdentity();
+    matrix.setColumn(0, v1);
+    matrix.setColumn(1, v2);
+    matrix.setColumn(2, v3);
+    matrix.setColumn(3, v4);
+
+    return matrix;
+}
+
 void GLWidget::paintGL()
 {
     // ensure GL flags
@@ -123,14 +188,16 @@ void GLWidget::paintGL()
     //
     drawPointCloud();
 
-    initQuader(_quaderOne, QVector4D(0.0, 0.0, 5.0, 1.0), 0.80);
-    initQuader(_quaderTwo, QVector4D(1.0, 1.0, 4.0, 1.0), 1.20);
+    initQuader(_quaderOne, QVector4D(0.0, 0.0, 8.0, 1.0), 0.80, 0.0, 30, 0.0);
+    initQuader(_quaderTwo, QVector4D(1.0, 1.0, 6.0, 1.0), 1.20, 30.0, 0.0, 0.0);
     initPerspectiveCameraModel(QVector4D(1.0, 1.0, 1.0, 1.0));
-    drawFrameAxis();
-    drawQuaderAxis(_quaderOne);
-    drawQuaderAxis(_quaderTwo);
-    drawQuaderAxis(_perspectiveCameraModelAxesLines);
-
+    initImagePlane(QVector4D(0.0, 0.0, 4.0, 1.0), 2.0);
+    drawLines(_axesLines);
+    drawLines(_quaderOne);
+    drawLines(_quaderTwo);
+    drawLines(_perspectiveCameraModelAxesLines);
+    drawImagePlane(_imagePlaneLines);
+    drawProjection();
     // Assignement 1, Part 1
     // Draw here your objects as in drawFrameAxis();
 
@@ -141,7 +208,7 @@ void GLWidget::paintGL()
     // Draw here the perspective projection
 }
 
-void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVector4D translation, float size)
+void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVector4D translation, float size, float alpha_x, float alpha_y, float alpha_z)
 {
     QMatrix4x4 translationMatrix;
     translationMatrix.setToIdentity();
@@ -151,20 +218,40 @@ void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVe
     QVector3D a2 = QVector3D(1.0, 0.0, 0.0);
     QVector3D a3 = QVector3D(1.0, 1.0, 0.0);
     QVector3D a4 = QVector3D(0.0, 1.0, 0.0);
+
+    //rotate points.
+    QMatrix4x4 rotationMatrix = rotation_x(alpha_x) * rotation_y(alpha_y) * rotation_z(alpha_z);
+    a1 = rotationMatrix * a1;
+    a2 = rotationMatrix * a2;
+    a3 = rotationMatrix * a3;
+    a4 = rotationMatrix * a4;
+
+    //move and resize points.
     a1 = translationMatrix * a1 * size;
     a2 = translationMatrix * a2 * size;
     a3 = translationMatrix * a3 * size;
     a4 = translationMatrix * a4 * size;
 
+    testVector = a1;
+
     QVector3D b1 = QVector3D(0.0, 0.0, 1.0);
     QVector3D b2 = QVector3D(1.0, 0.0, 1.0);
     QVector3D b3 = QVector3D(1.0, 1.0, 1.0);
     QVector3D b4 = QVector3D(0.0, 1.0, 1.0);
+
+    //rotate points.
+    b1 = rotationMatrix * b1;
+    b2 = rotationMatrix * b2;
+    b3 = rotationMatrix * b3;
+    b4 = rotationMatrix * b4;
+
+    //move and resize points.
     b1 = translationMatrix * b1 * size;
     b2 = translationMatrix * b2 * size;
     b3 = translationMatrix * b3 * size;
     b4 = translationMatrix * b4 * size;
 
+    //connect points in order to display quader correctly.
     quader.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
     quader.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
 
@@ -230,11 +317,58 @@ void GLWidget::initPerspectiveCameraModel(QVector4D translation)
     _perspectiveCameraModelAxesLines.push_back(std::make_pair(y, QColor(1.0, 0.0, 0.0)));
     _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(1.0, 0.0, 0.0)));
     _perspectiveCameraModelAxesLines.push_back(std::make_pair(z, QColor(1.0, 0.0, 0.0)));
+}
 
+void GLWidget::initImagePlane(QVector4D translation, float size)
+{
+    QMatrix4x4 translationMatrix;
+    translationMatrix.setToIdentity();
+    translationMatrix.setColumn(3, translation);
+
+    QVector3D a1 = QVector3D(0.0, 0.0, 0.0) * size;
+    QVector3D a2 = QVector3D(1.0, 0.0, 0.0) * size;
+    QVector3D a3 = QVector3D(1.0, 1.0, 0.0) * size;
+    QVector3D a4 = QVector3D(0.0, 1.0, 0.0) * size;
+
+    a1 = translationMatrix * a1;
+    a2 = translationMatrix * a2;
+    a3 = translationMatrix * a3;
+    a4 = translationMatrix * a4;
+    QColor color = QColor(1, 0.0, 0.0);
+
+    _imagePlaneLines.push_back(std::make_pair(a1, color));
+    _imagePlaneLines.push_back(std::make_pair(a2, color));
+
+    _imagePlaneLines.push_back(std::make_pair(a2, color));
+    _imagePlaneLines.push_back(std::make_pair(a3, color));
+
+    _imagePlaneLines.push_back(std::make_pair(a3, color));
+    _imagePlaneLines.push_back(std::make_pair(a4, color));
+
+    _imagePlaneLines.push_back(std::make_pair(a4, color));
+    _imagePlaneLines.push_back(std::make_pair(a1, color));
+}
+
+QVector3D GLWidget::centralProjection(float f)
+{
+   QVector2D test = QVector2D(testVector.x(), testVector.y()) * (-f/testVector.z());
+   return QVector3D(test.x(),test.y(), 2);
 
 }
 
-void GLWidget::drawQuaderAxis(std::vector<std::pair<QVector3D, QColor>> quader)
+void GLWidget::drawProjection()
+{
+  glBegin(GL_POINTS);
+  QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
+  mvMatrix.scale(0.05f); // make it small
+    const auto translated = _projectionMatrix * mvMatrix * centralProjection(-3.0);
+    glColor3f(0, 1, 0);
+    glVertex3f(translated.x(), translated.y(), translated.z());
+  glEnd();
+}
+
+
+void GLWidget::drawImagePlane(std::vector<std::pair<QVector3D, QColor>> quader)
 {
   glBegin(GL_LINES);
   QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
@@ -247,20 +381,18 @@ void GLWidget::drawQuaderAxis(std::vector<std::pair<QVector3D, QColor>> quader)
   glEnd();
 }
 
-
-void GLWidget::drawFrameAxis()
+void GLWidget::drawLines(std::vector<std::pair<QVector3D, QColor>> quader)
 {
   glBegin(GL_LINES);
   QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
   mvMatrix.scale(0.05f); // make it small
-  for (auto vertex : _axesLines) {
+  for (auto vertex : quader) {
     const auto translated = _projectionMatrix * mvMatrix * vertex.first;
     glColor3f(vertex.second.red(), vertex.second.green(), vertex.second.blue());
     glVertex3f(translated.x(), translated.y(), translated.z());
   }
   glEnd();
 }
-
 
 void GLWidget::resizeGL(int w, int h)
 {
@@ -318,9 +450,8 @@ void GLWidget::keyPressEvent(QKeyEvent * event)
       default:
         QWidget::keyPressEvent(event);
     }
-	update();
+    update();
 }
-
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
@@ -359,7 +490,6 @@ void GLWidget::attachCamera(QSharedPointer<Camera> camera)
   _currentCamera = camera;
   connect(camera.data(), &Camera::changed, this, &GLWidget::onCameraChanged);
 }
-
 
 void GLWidget::onCameraChanged(const CameraState&)
 {

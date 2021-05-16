@@ -54,19 +54,25 @@ private:
   void initShaders();
   void createContainers();
   void cleanup();
-  void drawFrameAxis();
-  void drawQuaderAxis(std::vector<std::pair<QVector3D, QColor>>);
+  void drawLines(std::vector<std::pair<QVector3D, QColor>>);
+  void drawImagePlane(std::vector<std::pair<QVector3D, QColor>>);
+
   void drawPointCloud();
-  void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float);
+  void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float, float, float, float);
   void initPerspectiveCameraModel(QVector4D translation);
+  void initImagePlane(QVector4D translation, float size);
   
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
   std::vector<std::pair<QVector3D, QColor> > _perspectiveCameraModelAxesLines;
+  std::vector<std::pair<QVector3D, QColor> > _imagePlaneLines;
 
   std::vector<std::pair<QVector3D, QColor> > _quaderOne;
   std::vector<std::pair<QVector3D, QColor> > _quaderTwo;
 
+  QMatrix4x4 rotation_x(float);
+  QMatrix4x4 rotation_y(float);
+  QMatrix4x4 rotation_z(float);
 
   QPoint _prevMousePosition;
   QOpenGLVertexArrayObject _vao;
@@ -77,7 +83,11 @@ private:
   QMatrix4x4 _cameraMatrix;
   QMatrix4x4 _worldMatrix;
 
+  QVector3D testVector;
+
   PointCloud pointcloud;
 
   QSharedPointer<Camera> _currentCamera;
+  QVector3D centralProjection(float);
+  void drawProjection();
 };
