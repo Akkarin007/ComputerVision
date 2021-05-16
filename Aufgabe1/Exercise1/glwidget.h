@@ -55,14 +55,16 @@ private:
   void createContainers();
   void cleanup();
   void drawFrameAxis();
-  void drawQuaderAxis();
+  void drawQuaderAxis(std::vector<std::pair<QVector3D, QColor>>);
   void drawPointCloud();
-  void initQuader();
+  void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float);
   
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
 
-  std::vector<std::pair<QVector3D, QColor> > _quaderLines;
+  std::vector<std::pair<QVector3D, QColor> > _quaderOne;
+  std::vector<std::pair<QVector3D, QColor> > _quaderTwo;
+
 
   QPoint _prevMousePosition;
   QOpenGLVertexArrayObject _vao;

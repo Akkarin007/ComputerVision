@@ -121,9 +121,12 @@ void GLWidget::paintGL()
     //
     drawPointCloud();
 
-    initQuader();
+    initQuader(_quaderOne, QVector4D(0.0, 0.0, 5.0, 1.0), 0.80);
+    initQuader(_quaderTwo, QVector4D(1.0, 1.0, 4.0, 1.0), 1.20);
+
     drawFrameAxis();
-    drawQuaderAxis();
+    drawQuaderAxis(_quaderOne);
+    drawQuaderAxis(_quaderTwo);
 
     // Assignement 1, Part 1
     // Draw here your objects as in drawFrameAxis();
@@ -135,68 +138,80 @@ void GLWidget::paintGL()
     // Draw here the perspective projection
 }
 
-void GLWidget::initQuader()
+void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVector4D translation, float size)
 {
+    QMatrix4x4 translateMatrix;
+    translateMatrix.setToIdentity();
+    translateMatrix.setColumn(3, translation);
+
     QVector3D a1 = QVector3D(0.0, 0.0, 0.0);
     QVector3D a2 = QVector3D(1.0, 0.0, 0.0);
     QVector3D a3 = QVector3D(1.0, 1.0, 0.0);
     QVector3D a4 = QVector3D(0.0, 1.0, 0.0);
-
+    a1 = translateMatrix * a1 * size;
+    a2 = translateMatrix * a2 * size;
+    a3 = translateMatrix * a3 * size;
+    a4 = translateMatrix * a4 * size;
 
     QVector3D b1 = QVector3D(0.0, 0.0, 1.0);
     QVector3D b2 = QVector3D(1.0, 0.0, 1.0);
     QVector3D b3 = QVector3D(1.0, 1.0, 1.0);
     QVector3D b4 = QVector3D(0.0, 1.0, 1.0);
 
-    _quaderLines.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
+    b1 = translateMatrix * b1 * size;
+    b2 = translateMatrix * b2 * size;
+    b3 = translateMatrix * b3 * size;
+    b4 = translateMatrix * b4 * size;
 
-    _quaderLines.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
 
-
-    _quaderLines.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
-
-    _quaderLines.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
-
-//-----------------------
-
-    _quaderLines.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
-
-    _quaderLines.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
 
 
-    _quaderLines.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
 
 //-----------------------
 
-    _quaderLines.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
+
+    quader.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+
+//-----------------------
+
+    quader.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+
+    quader.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
+
+    quader.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
+
+    quader.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
+    quader.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
 }
 
-void GLWidget::drawQuaderAxis()
+void GLWidget::drawQuaderAxis(std::vector<std::pair<QVector3D, QColor>> quader)
 {
   glBegin(GL_LINES);
   QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
   mvMatrix.scale(0.05f); // make it small
-  for (auto vertex : _quaderLines) {
+  for (auto vertex : quader) {
     const auto translated = _projectionMatrix * mvMatrix * vertex.first;
     glColor3f(vertex.second.red(), vertex.second.green(), vertex.second.blue());
     glVertex3f(translated.x(), translated.y(), translated.z());
