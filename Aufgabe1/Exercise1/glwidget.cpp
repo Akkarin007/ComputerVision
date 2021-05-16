@@ -137,48 +137,58 @@ void GLWidget::paintGL()
 
 void GLWidget::initQuader()
 {
-
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
-
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    QVector3D a1 = QVector3D(0.0, 0.0, 0.0);
+    QVector3D a2 = QVector3D(1.0, 0.0, 0.0);
+    QVector3D a3 = QVector3D(1.0, 1.0, 0.0);
+    QVector3D a4 = QVector3D(0.0, 1.0, 0.0);
 
 
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    QVector3D b1 = QVector3D(0.0, 0.0, 1.0);
+    QVector3D b2 = QVector3D(1.0, 0.0, 1.0);
+    QVector3D b3 = QVector3D(1.0, 1.0, 1.0);
+    QVector3D b4 = QVector3D(0.0, 1.0, 1.0);
 
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
 
-//-----------------------
-
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
 
 
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
 
 //-----------------------
 
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
 
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
+
+    _quaderLines.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+
+//-----------------------
+
+    _quaderLines.push_back(std::make_pair(a1, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b1, QColor(0.0, 1.0, 0.0)));
+
+    _quaderLines.push_back(std::make_pair(a2, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b2, QColor(0.0, 1.0, 0.0)));
+
+    _quaderLines.push_back(std::make_pair(a3, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b3, QColor(0.0, 1.0, 0.0)));
+
+    _quaderLines.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
 }
 
 void GLWidget::drawQuaderAxis()
