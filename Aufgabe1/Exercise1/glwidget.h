@@ -55,6 +55,7 @@ private:
   void createContainers();
   void cleanup();
   void drawFrameAxis();
+  void drawQuaderAxis();
   void drawPointCloud();
   void initQuader();
   

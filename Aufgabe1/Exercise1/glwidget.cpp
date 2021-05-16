@@ -120,9 +120,11 @@ void GLWidget::paintGL()
     // draw points cloud
     //
     drawPointCloud();
-    drawFrameAxis();
 
     initQuader();
+    drawFrameAxis();
+    drawQuaderAxis();
+
     // Assignement 1, Part 1
     // Draw here your objects as in drawFrameAxis();
 
@@ -150,42 +152,55 @@ void GLWidget::initQuader()
     _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
 
 //-----------------------
-     _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-     _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
 
-     _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-     _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
+
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
 
 
-     _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-     _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
 
-     _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-      _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
 
 //-----------------------
 
-      _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-      _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
 
-      _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
-      _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 0.0, 0.0), QColor(0.0, 1.0, 0.0)));
 
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
 
-      _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-      _quaderLines.push_back(std::make_pair(QVector3D(1.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
-
-      _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
-      _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
-
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 1.0), QColor(0.0, 1.0, 0.0)));
+    _quaderLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
 }
+
+void GLWidget::drawQuaderAxis()
+{
+  glBegin(GL_LINES);
+  QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
+  mvMatrix.scale(0.05f); // make it small
+  for (auto vertex : _quaderLines) {
+    const auto translated = _projectionMatrix * mvMatrix * vertex.first;
+    glColor3f(vertex.second.red(), vertex.second.green(), vertex.second.blue());
+    glVertex3f(translated.x(), translated.y(), translated.z());
+  }
+  glEnd();
+}
+
 
 void GLWidget::drawFrameAxis()
 {
   glBegin(GL_LINES);
   QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
   mvMatrix.scale(0.05f); // make it small
-  for (auto vertex : _quaderLines) {
+  for (auto vertex : _axesLines) {
     const auto translated = _projectionMatrix * mvMatrix * vertex.first;
     glColor3f(vertex.second.red(), vertex.second.green(), vertex.second.blue());
     glVertex3f(translated.x(), translated.y(), translated.z());
