@@ -58,9 +58,11 @@ private:
   void drawQuaderAxis(std::vector<std::pair<QVector3D, QColor>>);
   void drawPointCloud();
   void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float);
+  void initPerspectiveCameraModel(QVector4D translation);
   
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
+  std::vector<std::pair<QVector3D, QColor> > _perspectiveCameraModelAxesLines;
 
   std::vector<std::pair<QVector3D, QColor> > _quaderOne;
   std::vector<std::pair<QVector3D, QColor> > _quaderTwo;

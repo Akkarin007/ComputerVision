@@ -41,6 +41,8 @@ GLWidget::GLWidget(QWidget* parent)
     _axesLines.push_back(std::make_pair(QVector3D(0.0, 1.0, 0.0), QColor(0.0, 1.0, 0.0)));
     _axesLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 0.0), QColor(0.0, 0.0, 1.0)));
     _axesLines.push_back(std::make_pair(QVector3D(0.0, 0.0, 1.0), QColor(0.0, 0.0, 1.0)));
+
+
 }
 
 GLWidget::~GLWidget()
@@ -123,10 +125,11 @@ void GLWidget::paintGL()
 
     initQuader(_quaderOne, QVector4D(0.0, 0.0, 5.0, 1.0), 0.80);
     initQuader(_quaderTwo, QVector4D(1.0, 1.0, 4.0, 1.0), 1.20);
-
+    initPerspectiveCameraModel(QVector4D(1.0, 1.0, 1.0, 1.0));
     drawFrameAxis();
     drawQuaderAxis(_quaderOne);
     drawQuaderAxis(_quaderTwo);
+    drawQuaderAxis(_perspectiveCameraModelAxesLines);
 
     // Assignement 1, Part 1
     // Draw here your objects as in drawFrameAxis();
@@ -157,7 +160,6 @@ void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVe
     QVector3D b2 = QVector3D(1.0, 0.0, 1.0);
     QVector3D b3 = QVector3D(1.0, 1.0, 1.0);
     QVector3D b4 = QVector3D(0.0, 1.0, 1.0);
-
     b1 = translateMatrix * b1 * size;
     b2 = translateMatrix * b2 * size;
     b3 = translateMatrix * b3 * size;
@@ -204,6 +206,32 @@ void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVe
 
     quader.push_back(std::make_pair(a4, QColor(0.0, 1.0, 0.0)));
     quader.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
+}
+
+void GLWidget::initPerspectiveCameraModel(QVector4D translation)
+{
+    QMatrix4x4 translateMatrix;
+    translateMatrix.setToIdentity();
+    translateMatrix.setColumn(3, translation);
+
+    QVector3D center = QVector3D(0.0, 0.0, 0.0);
+    QVector3D x = QVector3D(1.0, 0.0, 0.0);
+    QVector3D y = QVector3D(0.0, 1.0, 0.0);
+    QVector3D z = QVector3D(0.0, 0.0, 1.0);
+
+    center = translateMatrix * center;
+    x = translateMatrix * x;
+    y = translateMatrix * y;
+    z = translateMatrix * z;
+
+    _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(1.0, 0.0, 0.0)));
+    _perspectiveCameraModelAxesLines.push_back(std::make_pair(x, QColor(1.0, 0.0, 0.0)));
+    _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(1.0, 0.0, 0.0)));
+    _perspectiveCameraModelAxesLines.push_back(std::make_pair(y, QColor(1.0, 0.0, 0.0)));
+    _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(1.0, 0.0, 0.0)));
+    _perspectiveCameraModelAxesLines.push_back(std::make_pair(z, QColor(1.0, 0.0, 0.0)));
+
+
 }
 
 void GLWidget::drawQuaderAxis(std::vector<std::pair<QVector3D, QColor>> quader)
