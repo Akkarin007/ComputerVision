@@ -220,8 +220,10 @@ void GLWidget::paintGL()
 
     // Assignement 1, Part 3
     // Draw here the perspective projection
-
-    drawProjection();
+    QVector4D projectionCenter = _positionWorldCamera;
+    QVector4D imagePrinciplePoint = QVector4D(_positionWorldCamera.x(), _positionWorldCamera.y(), _focalLength + _positionWorldCamera.z(), 0);
+    drawProjection(_quaderOne, projectionCenter, imagePrinciplePoint, _focalLength);
+    drawProjection(_quaderTwo, projectionCenter, imagePrinciplePoint, _focalLength);
 }
 
 void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVector4D translation, float size, float alpha_x, float alpha_y, float alpha_z)
@@ -347,10 +349,10 @@ void GLWidget::initImagePlane(QVector4D positionInWorld, float size, float focal
     translationMatrix.setToIdentity();
     translationMatrix.setColumn(3, positionInWorld);
 
-    QVector3D a1 = QVector3D(1.0, 1.0, focal_length) * size;
-    QVector3D a2 = QVector3D(1.0, -1.0, focal_length) * size;
-    QVector3D a3 = QVector3D(-1.0, -1.0, focal_length) * size;
-    QVector3D a4 = QVector3D(-1.0, 1.0, focal_length) * size;
+    QVector3D a1 = QVector3D(1.0, 1.0, focal_length);
+    QVector3D a2 = QVector3D(1.0, -1.0, focal_length);
+    QVector3D a3 = QVector3D(-1.0, -1.0, focal_length);
+    QVector3D a4 = QVector3D(-1.0, 1.0, focal_length);
 
 
 
@@ -374,21 +376,23 @@ void GLWidget::initImagePlane(QVector4D positionInWorld, float size, float focal
 }
 
 
-QVector3D GLWidget::centralProjection(float f)
+QVector3D GLWidget::centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint)
 {
-    QVector2D test = QVector2D(testVector.x() - _positionWorldCamera.x(), testVector.y() - _positionWorldCamera.y()) * (f/(testVector.z() - _positionWorldCamera.z()));
-    return QVector3D(test.x() + _positionWorldCamera.x(),test.y() + _positionWorldCamera.y(), f + _positionWorldCamera.z());
+    QVector2D tmp2DVector = QVector2D(vertex.x() - projectionCenter.x(), vertex.y() - projectionCenter.y()) * (focalLength/(vertex.z() - projectionCenter.z()));
+    return QVector3D(tmp2DVector.x() + imagePrinciplePoint.x(),tmp2DVector.y() + imagePrinciplePoint.y(), imagePrinciplePoint.z());
 }
 
-void GLWidget::drawProjection()
+void GLWidget::drawProjection(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter, QVector4D imagePrinciplePoint, float focalLength)
 {
-  glBegin(GL_POINTS);
-  QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
-  mvMatrix.scale(0.05f); // make it small
-    const auto translated = _projectionMatrix * mvMatrix * centralProjection(_focalLength);
-    glColor3f(0, 1, 0);
-    glVertex3f(translated.x(), translated.y(), translated.z());
-  glEnd();
+    glBegin(GL_LINES);
+    QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
+    mvMatrix.scale(0.05f); // make it small
+    for (auto vertex : quader) {
+        const auto translated = _projectionMatrix * mvMatrix * centralProjection(focalLength, vertex.first, projectionCenter.toVector3D(), imagePrinciplePoint.toVector3D());
+        glColor3f(0, 1, 0);
+        glVertex3f(translated.x(), translated.y(), translated.z());
+    }
+    glEnd();
 }
 
 

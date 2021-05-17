@@ -94,6 +94,6 @@ private:
   PointCloud pointcloud;
 
   QSharedPointer<Camera> _currentCamera;
-  QVector3D centralProjection(float f);
-  void drawProjection();
+  QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint);
+  void drawProjection(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter, QVector4D imagePrinciplePoint, float focalLength);
 };
