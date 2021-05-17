@@ -208,26 +208,37 @@ void GLWidget::paintGL()
     _positionWorldCamera = QVector4D(1.0, 1.0, 1.0, 1.0);
     _focalLength = 2;
     float imagePlaneSize = 1;
-    QVector3D cameraRotation = QVector3D(0, 0, 0);
+    QVector3D cameraRotation = QVector3D(0, 10, 0);
     QVector4D projectionCenter = _positionWorldCamera;
-    QVector4D imagePrinciplePoint = QVector4D(_positionWorldCamera.x(), _positionWorldCamera.y(), _focalLength + _positionWorldCamera.z(), 0);
-    QVector4D imagePrinciplePointRotated = rotation_x(cameraRotation.x()) * rotation_y(cameraRotation.y()) * rotation_z(cameraRotation.z()) * imagePrinciplePoint;
+    QVector4D imagePrinciplePoint = calculateImagePrinciplePoint(_focalLength, _positionWorldCamera, cameraRotation);
     initPerspectiveCameraModel(_positionWorldCamera, cameraRotation);
-    initImagePlane(_positionWorldCamera, imagePlaneSize, _focalLength, cameraRotation, imagePrinciplePointRotated);
+    initImagePlane(_positionWorldCamera, imagePlaneSize, _focalLength, cameraRotation, imagePrinciplePoint);
     drawLines(_perspectiveCameraModelAxesLines);
     drawImagePlane(_imagePlaneLines);
     drawLines(_imagePlaneAxes);
 
     // Assignement 1, Part 3
     // Draw here the perspective projection
-    drawProjection(_quaderOne, projectionCenter, imagePrinciplePointRotated, _focalLength);
-    drawProjection(_quaderTwo, projectionCenter, imagePrinciplePointRotated, _focalLength);
+    drawProjection(_quaderOne, projectionCenter, imagePrinciplePoint, _focalLength);
+    drawProjection(_quaderTwo, projectionCenter, imagePrinciplePoint, _focalLength);
 
     // Draw projection Lines
     initProjectionLines(_quaderOne, projectionCenter);
     //drawLines(_projectionLines);
     initProjectionLines(_quaderTwo, projectionCenter);
     //drawLines(_projectionLines);
+}
+
+QVector4D GLWidget::calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation)
+{
+    QMatrix4x4 translationMatrix;
+    translationMatrix.setToIdentity();
+    translationMatrix.setColumn(3, positionCamera);
+
+    QMatrix4x4 rotation = rotation_x(cameraRotation.x()) * rotation_y(cameraRotation.y()) * rotation_z(cameraRotation.z());
+    QVector4D imagePrinciplePoint = QVector4D(0, 0, focalLength, 1);
+    imagePrinciplePoint = translationMatrix * rotation * imagePrinciplePoint;
+    return imagePrinciplePoint;
 }
 
 void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVector4D translation, float size, float alpha_x, float alpha_y, float alpha_z)
@@ -253,8 +264,6 @@ void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVe
     a2 = translationMatrix * a2 * size;
     a3 = translationMatrix * a3 * size;
     a4 = translationMatrix * a4 * size;
-
-    testVector = a1;
 
     QVector3D b1 = QVector3D(0.0, 0.0, 1.0);
     QVector3D b2 = QVector3D(1.0, 0.0, 1.0);

@@ -61,6 +61,7 @@ private:
   void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float, float, float, float);
   void initPerspectiveCameraModel(QVector4D translation, QVector3D rotation);
   void initImagePlane(QVector4D positionInWorld, float size, float focal_length, QVector3D rotation, QVector4D imagePrinciplePoint);
+  QVector4D GLWidget::calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation);
   
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
@@ -90,8 +91,6 @@ private:
   QMatrix4x4 _projectionMatrix;
   QMatrix4x4 _cameraMatrix;
   QMatrix4x4 _worldMatrix;
-
-  QVector3D testVector;
 
   PointCloud pointcloud;
 
