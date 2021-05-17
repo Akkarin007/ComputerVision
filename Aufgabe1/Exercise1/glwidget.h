@@ -59,16 +59,18 @@ private:
 
   void drawPointCloud();
   void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float, float, float, float);
-  void initPerspectiveCameraModel(QVector4D translation);
-  void initImagePlane(QVector4D positionInWorld, float size, float focal_length);
+  void initPerspectiveCameraModel(QVector4D translation, QVector3D rotation);
+  void initImagePlane(QVector4D positionInWorld, float size, float focal_length, QVector3D rotation, QVector4D imagePrinciplePoint);
   
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
   std::vector<std::pair<QVector3D, QColor> > _perspectiveCameraModelAxesLines;
   std::vector<std::pair<QVector3D, QColor> > _imagePlaneLines;
+  std::vector<std::pair<QVector3D, QColor> > _imagePlaneAxes;
 
   std::vector<std::pair<QVector3D, QColor> > _quaderOne;
   std::vector<std::pair<QVector3D, QColor> > _quaderTwo;
+  std::vector<std::pair<QVector3D, QColor> > _projectionLines;
 
   QVector4D _positionWorldQuaderOne;
   QVector4D _positionWorldQuaderTwo;
@@ -96,4 +98,5 @@ private:
   QSharedPointer<Camera> _currentCamera;
   QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint);
   void drawProjection(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter, QVector4D imagePrinciplePoint, float focalLength);
+  void initProjectionLines(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter);
 };
