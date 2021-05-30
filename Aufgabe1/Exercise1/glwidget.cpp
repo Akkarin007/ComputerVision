@@ -192,42 +192,64 @@ void GLWidget::paintGL()
     // draw world cordinate system
     drawLines(_axesLines);
 
+    if (_show_aufgabe_1 == true)
+    {
+        aufgabe_1();
+    }
+    if (_show_aufgabe_2 == true)
+    {
+        aufgabe_2();
+    }
+}
 
+void GLWidget::aufgabe_1()
+{
     // Assignement 1, Part 1
     // Draw here your objects as in drawFrameAxis();
-    _positionWorldQuaderOne = QVector4D(0.0, 0.0, 8.0, 1.0);
-    _positionWorldQuaderTwo = QVector4D(1.0, 1.0, 6.0, 1.0);
-    initQuader(_quaderOne, _positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
-    initQuader(_quaderTwo, _positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
+    if (!_disable_cubes) {
+        _positionWorldQuaderOne = QVector4D(0.0, 0.0, 8.0, 1.0);
+        _positionWorldQuaderTwo = QVector4D(1.0, 1.0, 6.0, 1.0);
+        initQuader(_quaderOne, _positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
+        initQuader(_quaderTwo, _positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
 
-    drawLines(_quaderOne);
-    drawLines(_quaderTwo);
+        drawLines(_quaderOne);
+        drawLines(_quaderTwo);
+    }
 
     // Assignement 1, Part 2
     // Draw here your perspective camera model
     _positionWorldCamera = QVector4D(1.0, 1.0, 1.0, 1.0);
     _focalLength = 2;
     float imagePlaneSize = 1;
-    QVector3D cameraRotation = QVector3D(0, 10, 0);
+    QVector3D cameraRotation = QVector3D(10, 0, 0);
     QVector4D projectionCenter = _positionWorldCamera;
     QVector4D imagePrinciplePoint = calculateImagePrinciplePoint(_focalLength, _positionWorldCamera, cameraRotation);
+
     initPerspectiveCameraModel(_positionWorldCamera, cameraRotation);
-    initImagePlane(_positionWorldCamera, imagePlaneSize, _focalLength, cameraRotation, imagePrinciplePoint);
     drawLines(_perspectiveCameraModelAxesLines);
-    drawImagePlane(_imagePlaneLines);
-    drawLines(_imagePlaneAxes);
+
+    if (!_disable_image_plane) {
+        initImagePlane(_positionWorldCamera, imagePlaneSize, _focalLength, cameraRotation, imagePrinciplePoint);
+        drawImagePlane(_imagePlaneLines);
+        drawLines(_imagePlaneAxes);
+    }
 
     // Assignement 1, Part 3
     // Draw here the perspective projection
-    drawProjection(_quaderOne, projectionCenter, imagePrinciplePoint, _focalLength);
-    drawProjection(_quaderTwo, projectionCenter, imagePrinciplePoint, _focalLength);
+    if (!_disable_projection) {
+        drawProjection(_quaderOne, projectionCenter, imagePrinciplePoint, _focalLength, cameraRotation);
+        drawProjection(_quaderTwo, projectionCenter, imagePrinciplePoint, _focalLength, cameraRotation);
+    }
 
     // Draw projection Lines
-    initProjectionLines(_quaderOne, projectionCenter);
-    //drawLines(_projectionLines);
-    initProjectionLines(_quaderTwo, projectionCenter);
-    //drawLines(_projectionLines);
+    if (!_disable_rays) {
+        initProjectionLines(_quaderOne, projectionCenter);
+        initProjectionLines(_quaderTwo, projectionCenter);
+        drawLines(_projectionLines);
+    }
 }
+
+void GLWidget::aufgabe_2() {}
 
 QVector4D GLWidget::calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation)
 {
@@ -371,8 +393,6 @@ void GLWidget::initImagePlane(QVector4D positionInWorld, float size, float focal
     QVector3D a3 = QVector3D(-1.0, -1.0, focal_length);
     QVector3D a4 = QVector3D(-1.0, 1.0, focal_length);
 
-
-
     a1 = translationMatrix * rotationMatrix * scalingMatrix * a1;
     a2 = translationMatrix * rotationMatrix * scalingMatrix * a2;
     a3 = translationMatrix * rotationMatrix * scalingMatrix * a3;
@@ -416,19 +436,62 @@ void GLWidget::initProjectionLines(std::vector<std::pair<QVector3D, QColor>> qua
     }
 }
 
-QVector3D GLWidget::centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint)
+QVector4D GLWidget::calculate_image_plane_equation(QVector3D imagePrinciplePoint, QVector3D rotation)
 {
-    QVector2D tmp2DVector = QVector2D(vertex.x() - projectionCenter.x(), vertex.y() - projectionCenter.y()) * (focalLength/(vertex.z() - projectionCenter.z()));
-    return QVector3D(tmp2DVector.x() + imagePrinciplePoint.x(),tmp2DVector.y() + imagePrinciplePoint.y(), imagePrinciplePoint.z());
+    // used to calculate z point on image plane: a*x+b*y+c*z=w
+    // Returns: an vector where vector.x = a, vector.y = b, vector.z = c and vector.w = w
+
+    QMatrix4x4 rotation_matrix = rotation_x(rotation.x()) * rotation_y(rotation.y()) * rotation_z(rotation.z());
+
+    QVector3D plane_v1 = QVector3D(0.5, 0.0, 0);
+    QVector3D plane_v2 = QVector3D(0.0, 0.5, 0);
+
+    plane_v1 = rotation_matrix * plane_v1;
+    plane_v2 = rotation_matrix * plane_v2;
+
+    float normal_vektor_x = (plane_v1.y() * plane_v2.z()) - (plane_v1.z() * plane_v2.y());
+    float normal_vektor_y = (plane_v1.z() * plane_v2.x()) - (plane_v1.x() * plane_v2.z());
+    float normal_vektor_z = (plane_v1.x() * plane_v2.y()) - (plane_v1.y() * plane_v2.x());
+    float result_plane_calc = normal_vektor_x * imagePrinciplePoint.x()  + normal_vektor_y * imagePrinciplePoint.y() + normal_vektor_z * imagePrinciplePoint.z();
+
+    return QVector4D(normal_vektor_x, normal_vektor_y, normal_vektor_z, result_plane_calc);
 }
 
-void GLWidget::drawProjection(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter, QVector4D imagePrinciplePoint, float focalLength)
+QVector3D GLWidget::centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint, QVector3D rotation, QVector4D image_plane)
 {
+    QMatrix4x4 rotation_matrix = (rotation_x(rotation.x()) * rotation_y(rotation.y()) * rotation_z(rotation.z())).transposed();
+
+    //calculate x
+    float x_term_1 = rotation_matrix.column(0).x() * ( vertex.x() - projectionCenter.x());
+    float x_term_2 = rotation_matrix.column(1).x() * ( vertex.y() - projectionCenter.y());
+    float x_term_3 = rotation_matrix.column(2).x() * ( vertex.z() - projectionCenter.z());
+    float x_term_4 = rotation_matrix.column(0).z() * ( vertex.x() - projectionCenter.x());
+    float x_term_5 = rotation_matrix.column(1).z() * ( vertex.y() - projectionCenter.y());
+    float x_term_6 = rotation_matrix.column(2).z() * ( vertex.z() - projectionCenter.z());
+    float x = imagePrinciplePoint.x() + focalLength * ( (x_term_1 + x_term_2 + x_term_3) / (x_term_4 + x_term_5 + x_term_6));
+
+    // calculate y
+    float y_term_1 = rotation_matrix.column(0).y() * ( vertex.x() - projectionCenter.x());
+    float y_term_2 = rotation_matrix.column(1).y() * ( vertex.y() - projectionCenter.y());
+    float y_term_3 = rotation_matrix.column(2).y() * ( vertex.z() - projectionCenter.z());
+    float y_term_4 = rotation_matrix.column(0).z() * ( vertex.x() - projectionCenter.x());
+    float y_term_5 = rotation_matrix.column(1).z() * ( vertex.y() - projectionCenter.y());
+    float y_term_6 = rotation_matrix.column(2).z() * ( vertex.z() - projectionCenter.z());
+    float y = imagePrinciplePoint.y() + focalLength * ( (y_term_1 + y_term_2 + y_term_3) / (y_term_4 + y_term_5 + y_term_6));
+
+    // calculate z
+    float z = (1 / image_plane.z()) * (image_plane.w() -(image_plane.x() * x) - (image_plane.y() * y)) ;
+    return QVector3D(x, y, z);
+}
+
+void GLWidget::drawProjection(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter, QVector4D imagePrinciplePoint, float focalLength, QVector3D camera_rotation)
+{
+    QVector4D image_plane = calculate_image_plane_equation(imagePrinciplePoint.toVector3D(), camera_rotation);
     glBegin(GL_LINES);
     QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
     mvMatrix.scale(0.05f); // make it small
     for (auto vertex : quader) {
-        const auto translated = _projectionMatrix * mvMatrix * centralProjection(focalLength, vertex.first, projectionCenter.toVector3D(), imagePrinciplePoint.toVector3D());
+        const auto translated = _projectionMatrix * mvMatrix * centralProjection(focalLength, vertex.first, projectionCenter.toVector3D(), imagePrinciplePoint.toVector3D(), camera_rotation, image_plane);
         glColor3f(0, 1, 0);
         glVertex3f(translated.x(), translated.y(), translated.z());
     }
@@ -584,14 +647,55 @@ void GLWidget::openFileDialog()
 void GLWidget::radioButton1Clicked()
 {
     // TODO: toggle to Jarvis' march
-    QMessageBox::warning(this, "Feature" ,"upsi hier fehlt noch was");
+    _show_aufgabe_1 = true;
+    _show_aufgabe_2 = false;
     update();
 }
 
 void GLWidget::radioButton2Clicked()
 {
-    // TODO: toggle to Graham's scan
-    QMessageBox::warning(this, "Feature" ,"upsi hier fehlt noch was");
+    _show_aufgabe_1 = false;
+    _show_aufgabe_2 = true;
+    update();
+}
+
+void GLWidget::disable_cubes()
+{
+    if (_disable_cubes == true) {
+        _disable_cubes = false;
+    } else {
+        _disable_cubes = true;
+    }
+    update();
+}
+
+void GLWidget::disable_projection()
+{
+    if (_disable_projection == true) {
+        _disable_projection = false;
+    } else {
+        _disable_projection = true;
+    }
+    update();
+}
+
+void GLWidget::disable_rays()
+{
+    if (_disable_rays == true) {
+        _disable_rays = false;
+    } else {
+        _disable_rays = true;
+    }
+    update();
+}
+
+void GLWidget::disable_image_plane()
+{
+    if (_disable_image_plane == true) {
+        _disable_image_plane = false;
+    } else {
+        _disable_image_plane = true;
+    }
     update();
 }
 

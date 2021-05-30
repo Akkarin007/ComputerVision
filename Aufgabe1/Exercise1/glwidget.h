@@ -33,6 +33,10 @@ public slots:
     void openFileDialog();
     void radioButton1Clicked();
     void radioButton2Clicked();
+    void disable_rays();
+    void disable_cubes();
+    void disable_projection();
+    void disable_image_plane();
     void setPointSize(size_t size);
     void attachCamera(QSharedPointer<Camera> camera);
 
@@ -61,7 +65,8 @@ private:
   void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float, float, float, float);
   void initPerspectiveCameraModel(QVector4D translation, QVector3D rotation);
   void initImagePlane(QVector4D positionInWorld, float size, float focal_length, QVector3D rotation, QVector4D imagePrinciplePoint);
-  QVector4D GLWidget::calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation);
+  QVector4D calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation);
+  QVector4D calculate_image_plane_equation(QVector3D imagePrinciplePoint, QVector3D rotation);
   
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
@@ -88,6 +93,16 @@ private:
   QOpenGLBuffer _vertexBuffer;
   QScopedPointer<QOpenGLShaderProgram> _shaders;
 
+  void aufgabe_1();
+  void aufgabe_2();
+
+  boolean _show_aufgabe_1 = true;
+  boolean _show_aufgabe_2 = false;
+  boolean _disable_rays = false;
+  boolean _disable_cubes = false;
+  boolean _disable_projection = false;
+  boolean _disable_image_plane = false;
+
   QMatrix4x4 _projectionMatrix;
   QMatrix4x4 _cameraMatrix;
   QMatrix4x4 _worldMatrix;
@@ -95,7 +110,7 @@ private:
   PointCloud pointcloud;
 
   QSharedPointer<Camera> _currentCamera;
-  QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint);
-  void drawProjection(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter, QVector4D imagePrinciplePoint, float focalLength);
+  QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint, QVector3D rotation, QVector4D image_plane);
+  void drawProjection(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter, QVector4D imagePrinciplePoint, float focalLength, QVector3D rotation);
   void initProjectionLines(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter);
 };
