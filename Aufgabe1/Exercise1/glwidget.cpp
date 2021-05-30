@@ -204,52 +204,148 @@ void GLWidget::paintGL()
 
 void GLWidget::aufgabe_1()
 {
+    // Vector sets:
+    std::vector<std::pair<QVector3D, QColor> > quaderOne;
+    std::vector<std::pair<QVector3D, QColor> > quaderTwo;
+    std::vector<std::pair<QVector3D, QColor> > perspectiveCameraModelAxesLines;
+    std::vector<std::pair<QVector3D, QColor> > imagePlaneLines;
+    std::vector<std::pair<QVector3D, QColor> > imagePlaneAxes;
+    std::vector<std::pair<QVector3D, QColor> > projectionLines;
+
+
     // Assignement 1, Part 1
     // Draw here your objects as in drawFrameAxis();
+    QVector4D positionWorldQuaderOne = QVector4D(0.0, 0.0, 8.0, 1.0);
+    QVector4D positionWorldQuaderTwo = QVector4D(1.0, 1.0, 6.0, 1.0);
     if (!_disable_cubes) {
-        _positionWorldQuaderOne = QVector4D(0.0, 0.0, 8.0, 1.0);
-        _positionWorldQuaderTwo = QVector4D(1.0, 1.0, 6.0, 1.0);
-        initQuader(_quaderOne, _positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
-        initQuader(_quaderTwo, _positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
+        initQuader(quaderOne, positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
+        initQuader(quaderTwo, positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
 
-        drawLines(_quaderOne);
-        drawLines(_quaderTwo);
+        drawLines(quaderOne);
+        drawLines(quaderTwo);
     }
 
     // Assignement 1, Part 2
     // Draw here your perspective camera model
-    _positionWorldCamera = QVector4D(1.0, 1.0, 1.0, 1.0);
-    _focalLength = 2;
+    QVector4D positionWorldCamera = QVector4D(1.0, 1.0, 1.0, 1.0);
+    float focalLength = 2;
     float imagePlaneSize = 1;
-    QVector3D cameraRotation = QVector3D(10, 0, 0);
-    QVector4D projectionCenter = _positionWorldCamera;
-    QVector4D imagePrinciplePoint = calculateImagePrinciplePoint(_focalLength, _positionWorldCamera, cameraRotation);
+    QVector3D cameraRotation = QVector3D(0, 5, 0);
+    QVector4D projectionCenter = positionWorldCamera;
+    QVector4D imagePrinciplePoint = calculateImagePrinciplePoint(focalLength, positionWorldCamera, cameraRotation);
 
-    initPerspectiveCameraModel(_positionWorldCamera, cameraRotation);
-    drawLines(_perspectiveCameraModelAxesLines);
+    initPerspectiveCameraModel(perspectiveCameraModelAxesLines, positionWorldCamera, cameraRotation);
+    drawLines(perspectiveCameraModelAxesLines);
 
     if (!_disable_image_plane) {
-        initImagePlane(_positionWorldCamera, imagePlaneSize, _focalLength, cameraRotation, imagePrinciplePoint);
-        drawImagePlane(_imagePlaneLines);
-        drawLines(_imagePlaneAxes);
+        initImagePlane(imagePlaneLines, imagePlaneAxes ,positionWorldCamera, imagePlaneSize, focalLength, cameraRotation, imagePrinciplePoint);
+        drawImagePlane(imagePlaneLines);
+        drawLines(imagePlaneAxes);
     }
 
     // Assignement 1, Part 3
     // Draw here the perspective projection
     if (!_disable_projection) {
-        drawProjection(_quaderOne, projectionCenter, imagePrinciplePoint, _focalLength, cameraRotation);
-        drawProjection(_quaderTwo, projectionCenter, imagePrinciplePoint, _focalLength, cameraRotation);
+        drawProjection(quaderOne, projectionCenter, imagePrinciplePoint, focalLength, cameraRotation);
+        drawProjection(quaderTwo, projectionCenter, imagePrinciplePoint, focalLength, cameraRotation);
     }
 
     // Draw projection Lines
-    if (!_disable_rays) {
-        initProjectionLines(_quaderOne, projectionCenter);
-        initProjectionLines(_quaderTwo, projectionCenter);
-        drawLines(_projectionLines);
+    if (!_disable_rays_camera1) {
+        initProjectionLines(quaderOne, projectionLines, projectionCenter);
+        initProjectionLines(quaderTwo, projectionLines, projectionCenter);
+        drawLines(projectionLines);
     }
 }
 
-void GLWidget::aufgabe_2() {}
+void GLWidget::aufgabe_2()
+{
+    // Vector sets:
+    std::vector<std::pair<QVector3D, QColor> > quaderOne;
+    std::vector<std::pair<QVector3D, QColor> > quaderTwo;
+    std::vector<std::pair<QVector3D, QColor> > perspectiveCameraModelAxesLines;
+    std::vector<std::pair<QVector3D, QColor> > imagePlaneLines;
+    std::vector<std::pair<QVector3D, QColor> > imagePlaneAxes;
+    std::vector<std::pair<QVector3D, QColor> > projectionLines;
+
+    // Draw Cubes
+    QVector4D positionWorldQuaderOne = QVector4D(0.0, 0.0, 8.0, 1.0);
+    QVector4D positionWorldQuaderTwo = QVector4D(1.0, 1.0, 6.0, 1.0);
+    if (!_disable_cubes) {
+        initQuader(quaderOne, positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
+        initQuader(quaderTwo, positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
+
+        drawLines(quaderOne);
+        drawLines(quaderTwo);
+    }
+
+    // Camera 1
+    QVector4D camera_1_positionWorld = QVector4D(1.0, 1.0, 1.0, 1.0);
+    float camera_1_focalLength = 2;
+    float camera_1_imagePlaneSize = 1;
+    QVector3D camera_1_cameraRotation = QVector3D(10, 0, 0);
+    QVector4D camera_1_projectionCenter = camera_1_positionWorld;
+    QVector4D camera_1_imagePrinciplePoint = calculateImagePrinciplePoint(camera_1_focalLength, camera_1_positionWorld, camera_1_cameraRotation);
+    if (!_disable_camera1) {
+        initPerspectiveCameraModel(perspectiveCameraModelAxesLines, camera_1_positionWorld, camera_1_cameraRotation);
+        drawLines(perspectiveCameraModelAxesLines);
+
+        // draw camera
+        if (!_disable_image_plane) {
+            initImagePlane(imagePlaneLines, imagePlaneAxes ,camera_1_positionWorld, camera_1_imagePlaneSize, camera_1_focalLength, camera_1_cameraRotation, camera_1_imagePrinciplePoint);
+            drawImagePlane(imagePlaneLines);
+            drawLines(imagePlaneAxes);
+        }
+
+        // draw projection
+        if (!_disable_projection) {
+            drawProjection(quaderOne, camera_1_projectionCenter, camera_1_imagePrinciplePoint, camera_1_focalLength, camera_1_cameraRotation);
+            drawProjection(quaderTwo, camera_1_projectionCenter, camera_1_imagePrinciplePoint, camera_1_focalLength, camera_1_cameraRotation);
+        }
+
+        // draw projection Lines
+        if (!_disable_rays_camera1) {
+            initProjectionLines(quaderOne, projectionLines,  camera_1_projectionCenter);
+            initProjectionLines(quaderTwo, projectionLines, camera_1_projectionCenter);
+            drawLines(projectionLines);
+        }
+    }
+
+    // Camera 2
+    QVector4D camera_2_positionWorld = QVector4D(6.0, 1.0, 2.0, 1.0);
+    float camera_2_focalLength = 3;
+    float camera_2_imagePlaneSize = 1;
+    QVector3D camera_2_cameraRotation = QVector3D(0, 45, 0);
+    QVector4D camera_2_projectionCenter = camera_2_positionWorld;
+    QVector4D camera_2_imagePrinciplePoint = calculateImagePrinciplePoint(camera_2_focalLength, camera_2_positionWorld, camera_2_cameraRotation);
+    if (!_disable_camera2) {
+        initPerspectiveCameraModel(perspectiveCameraModelAxesLines, camera_2_positionWorld, camera_2_cameraRotation);
+        drawLines(perspectiveCameraModelAxesLines);
+        // draw camera
+        if (!_disable_image_plane) {
+            initImagePlane(imagePlaneLines, imagePlaneAxes ,camera_2_positionWorld, camera_2_imagePlaneSize, camera_2_focalLength, camera_2_cameraRotation, camera_2_imagePrinciplePoint);
+            drawImagePlane(imagePlaneLines);
+            drawLines(imagePlaneAxes);
+        }
+
+        // draw projection
+        if (!_disable_projection) {
+            drawProjection(quaderOne, camera_2_projectionCenter, camera_2_imagePrinciplePoint, camera_2_focalLength, camera_2_cameraRotation);
+            drawProjection(quaderTwo, camera_2_projectionCenter, camera_2_imagePrinciplePoint, camera_2_focalLength, camera_2_cameraRotation);
+        }
+
+        // draw projection lines
+        if (!_disable_rays_camera2) {
+            initProjectionLines(quaderOne, projectionLines, camera_2_projectionCenter);
+            initProjectionLines(quaderTwo, projectionLines, camera_2_projectionCenter);
+            drawLines(projectionLines);
+        }
+    }
+
+    // reconstruct cubes
+
+    // reconstruct cubes wrong
+}
 
 QVector4D GLWidget::calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation)
 {
@@ -348,7 +444,7 @@ void GLWidget::initQuader(std::vector<std::pair<QVector3D, QColor>> &quader, QVe
     quader.push_back(std::make_pair(b4, QColor(0.0, 1.0, 0.0)));
 }
 
-void GLWidget::initPerspectiveCameraModel(QVector4D translation, QVector3D rotation)
+void GLWidget::initPerspectiveCameraModel(std::vector<std::pair<QVector3D, QColor>> &perspectiveCameraModelAxesLines, QVector4D translation, QVector3D rotation)
 {
     QMatrix4x4 translationMatrix;
     translationMatrix.setToIdentity();
@@ -366,15 +462,15 @@ void GLWidget::initPerspectiveCameraModel(QVector4D translation, QVector3D rotat
     y = translationMatrix * rotationMatrix * y;
     z = translationMatrix * rotationMatrix * z;
 
-    _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(1.0, 0.0, 0.0)));
-    _perspectiveCameraModelAxesLines.push_back(std::make_pair(x, QColor(1.0, 0.0, 0.0)));
-    _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(0.0, 1.0, 0.0)));
-    _perspectiveCameraModelAxesLines.push_back(std::make_pair(y, QColor(0.0, 1.0, 0.0)));
-    _perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(0.0, 0.0, 1.0)));
-    _perspectiveCameraModelAxesLines.push_back(std::make_pair(z, QColor(0.0, 0.0, 1.0)));
+    perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(1.0, 0.0, 0.0)));
+    perspectiveCameraModelAxesLines.push_back(std::make_pair(x, QColor(1.0, 0.0, 0.0)));
+    perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(0.0, 1.0, 0.0)));
+    perspectiveCameraModelAxesLines.push_back(std::make_pair(y, QColor(0.0, 1.0, 0.0)));
+    perspectiveCameraModelAxesLines.push_back(std::make_pair(center, QColor(0.0, 0.0, 1.0)));
+    perspectiveCameraModelAxesLines.push_back(std::make_pair(z, QColor(0.0, 0.0, 1.0)));
 }
 
-void GLWidget::initImagePlane(QVector4D positionInWorld, float size, float focal_length, QVector3D rotation, QVector4D imagePrinciplePoint)
+void GLWidget::initImagePlane(std::vector<std::pair<QVector3D, QColor>> &imagePlaneLines, std::vector<std::pair<QVector3D, QColor>> &imagePlaneAxes, QVector4D positionInWorld, float size, float focal_length, QVector3D rotation, QVector4D imagePrinciplePoint)
 {
     QMatrix4x4 scalingMatrix;
     scalingMatrix = QMatrix4x4(size, 0.0, 0.0, 0.0,
@@ -399,17 +495,17 @@ void GLWidget::initImagePlane(QVector4D positionInWorld, float size, float focal
     a4 = translationMatrix * rotationMatrix * scalingMatrix * a4;
     QColor color = QColor(1.0, 0.0, 0.0);
 
-    _imagePlaneLines.push_back(std::make_pair(a1, color));
-    _imagePlaneLines.push_back(std::make_pair(a2, color));
+    imagePlaneLines.push_back(std::make_pair(a1, color));
+    imagePlaneLines.push_back(std::make_pair(a2, color));
 
-    _imagePlaneLines.push_back(std::make_pair(a2, color));
-    _imagePlaneLines.push_back(std::make_pair(a3, color));
+    imagePlaneLines.push_back(std::make_pair(a2, color));
+    imagePlaneLines.push_back(std::make_pair(a3, color));
 
-    _imagePlaneLines.push_back(std::make_pair(a3, color));
-    _imagePlaneLines.push_back(std::make_pair(a4, color));
+    imagePlaneLines.push_back(std::make_pair(a3, color));
+    imagePlaneLines.push_back(std::make_pair(a4, color));
 
-    _imagePlaneLines.push_back(std::make_pair(a4, color));
-    _imagePlaneLines.push_back(std::make_pair(a1, color));
+    imagePlaneLines.push_back(std::make_pair(a4, color));
+    imagePlaneLines.push_back(std::make_pair(a1, color));
 
     // add axes
 
@@ -419,20 +515,20 @@ void GLWidget::initImagePlane(QVector4D positionInWorld, float size, float focal
     x = translationMatrix * rotationMatrix * x;
     y = translationMatrix * rotationMatrix * y;
 
-    _imagePlaneAxes.push_back(std::make_pair(imagePrinciplePoint.toVector3D(), color));
-    _imagePlaneAxes.push_back(std::make_pair(x, color));
+    imagePlaneAxes.push_back(std::make_pair(imagePrinciplePoint.toVector3D(), color));
+    imagePlaneAxes.push_back(std::make_pair(x, color));
 
-    _imagePlaneAxes.push_back(std::make_pair(imagePrinciplePoint.toVector3D(), color));
-    _imagePlaneAxes.push_back(std::make_pair(y, color));
+    imagePlaneAxes.push_back(std::make_pair(imagePrinciplePoint.toVector3D(), color));
+    imagePlaneAxes.push_back(std::make_pair(y, color));
 
 }
 
-void GLWidget::initProjectionLines(std::vector<std::pair<QVector3D, QColor>> quader, QVector4D projectionCenter)
+void GLWidget::initProjectionLines(std::vector<std::pair<QVector3D, QColor>> quader, std::vector<std::pair<QVector3D, QColor>> &projectionLines,  QVector4D projectionCenter)
 {
     QColor color = QColor(0.0, 0.0, 1.0);
     for (auto vertex : quader) {
-        _projectionLines.push_back(std::make_pair(vertex.first, color));
-        _projectionLines.push_back(std::make_pair(projectionCenter.toVector3D(), color));
+        projectionLines.push_back(std::make_pair(vertex.first, color));
+        projectionLines.push_back(std::make_pair(projectionCenter.toVector3D(), color));
     }
 }
 
@@ -443,8 +539,8 @@ QVector4D GLWidget::calculate_image_plane_equation(QVector3D imagePrinciplePoint
 
     QMatrix4x4 rotation_matrix = rotation_x(rotation.x()) * rotation_y(rotation.y()) * rotation_z(rotation.z());
 
-    QVector3D plane_v1 = QVector3D(0.5, 0.0, 0);
-    QVector3D plane_v2 = QVector3D(0.0, 0.5, 0);
+    QVector3D plane_v1 = QVector3D(1.0, 0.0, 0);
+    QVector3D plane_v2 = QVector3D(0.0, 1.0, 0);
 
     plane_v1 = rotation_matrix * plane_v1;
     plane_v2 = rotation_matrix * plane_v2;
@@ -681,10 +777,10 @@ void GLWidget::disable_projection()
 
 void GLWidget::disable_rays()
 {
-    if (_disable_rays == true) {
-        _disable_rays = false;
+    if (_disable_rays_camera1 == true) {
+        _disable_rays_camera1 = false;
     } else {
-        _disable_rays = true;
+        _disable_rays_camera1 = true;
     }
     update();
 }
