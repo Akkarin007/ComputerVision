@@ -231,7 +231,7 @@ void GLWidget::aufgabe_1()
     QVector4D positionWorldCamera = QVector4D(1.0, 1.0, 1.0, 1.0);
     float focalLength = 2;
     float imagePlaneSize = 1;
-    QVector3D cameraRotation = QVector3D(0, 5, 0);
+    QVector3D cameraRotation = QVector3D(0, 0, 0);
     QVector4D projectionCenter = positionWorldCamera;
     QVector4D imagePrinciplePoint = calculateImagePrinciplePoint(focalLength, positionWorldCamera, cameraRotation);
 
@@ -287,10 +287,10 @@ void GLWidget::aufgabe_2()
     }
 
     // Camera 1
-    QVector4D camera_1_positionWorld = QVector4D(1.0, 1.0, 1.0, 1.0);
+    QVector4D camera_1_positionWorld = QVector4D(0.5, 1.0, 1.0, 1.0);
     float camera_1_focalLength = 2;
     float camera_1_imagePlaneSize = 1;
-    QVector3D camera_1_cameraRotation = QVector3D(10, 0, 0);
+    QVector3D camera_1_cameraRotation = QVector3D(0, 0, 0);
     QVector4D camera_1_projectionCenter = camera_1_positionWorld;
     QVector4D camera_1_imagePrinciplePoint = calculateImagePrinciplePoint(camera_1_focalLength, camera_1_positionWorld, camera_1_cameraRotation);
     if (!_disable_camera1) {
@@ -321,10 +321,10 @@ void GLWidget::aufgabe_2()
     }
 
     // Camera 2
-    QVector4D camera_2_positionWorld = QVector4D(6.0, 1.0, 2.0, 1.0);
-    float camera_2_focalLength = 3;
+    QVector4D camera_2_positionWorld = QVector4D(2.5, 1.0, 1, 1.0);
+    float camera_2_focalLength = 2;
     float camera_2_imagePlaneSize = 1;
-    QVector3D camera_2_cameraRotation = QVector3D(0, 45, 0);
+    QVector3D camera_2_cameraRotation = QVector3D(0, 10, 0);
     QVector4D camera_2_projectionCenter = camera_2_positionWorld;
     QVector4D camera_2_imagePrinciplePoint = calculateImagePrinciplePoint(camera_2_focalLength, camera_2_positionWorld, camera_2_cameraRotation);
     if (!_disable_camera2) {
@@ -354,7 +354,14 @@ void GLWidget::aufgabe_2()
     }
 
     // reconstruct cubes
-
+    std::vector<std::pair<QVector3D, QColor> > quaderOneCorrectReconstruction;
+    std::vector<std::pair<QVector3D, QColor> > quaderTwoCorrectReconstruction;
+    if (!_disable_correct_reconstruction) {
+        initStereoVisionNormalCaseReconstruction(camera_1_quaderOneProjection, camera_2_quaderOneProjection, quaderOneCorrectReconstruction, camera_1_focalLength, camera_1_positionWorld.toVector3D(), camera_2_positionWorld.toVector3D());
+        initStereoVisionNormalCaseReconstruction(camera_1_quaderTwoProjection, camera_2_quaderTwoProjection, quaderTwoCorrectReconstruction, camera_1_focalLength, camera_1_positionWorld.toVector3D(), camera_2_positionWorld.toVector3D());
+        drawLines(quaderOneCorrectReconstruction);
+        drawLines(quaderTwoCorrectReconstruction);
+    }
     // reconstruct cubes wrong
 }
 
@@ -543,6 +550,20 @@ void GLWidget::initProjectionLines(std::vector<std::pair<QVector3D, QColor>> qua
     }
 }
 
+void GLWidget::initStereoVisionNormalCaseReconstruction(std::vector<std::pair<QVector3D, QColor>> projection1, std::vector<std::pair<QVector3D, QColor>> projection2, std::vector<std::pair<QVector3D, QColor>> &reconstruction, float focalLength, QVector3D camera_1_pos, QVector3D camera_2_pos)
+{
+    int count = 0;
+    QColor color = QColor(0.0, 0.0, 1.0);
+    while(count < (int) projection1.size()) {
+        QVector3D tmp_v1 = QVector3D(projection1[count].first.x() - camera_1_pos.x(), projection1[count].first.y() - camera_1_pos.y(), projection1[count].first.z() - camera_1_pos.z());
+        QVector3D tmp_v2 = QVector3D(projection2[count].first.x() - camera_2_pos.x(), projection1[count].first.y() - camera_2_pos.y(), projection1[count].first.z() - camera_2_pos.z());
+        QVector3D projected_point = stereoVisionNormalCaseReconstruction(-focalLength, camera_1_pos.x() - camera_2_pos.x(), tmp_v1, tmp_v2);
+        projected_point = QVector3D(camera_1_pos.x() + projected_point.x(), camera_1_pos.y() + projected_point.y(), camera_1_pos.z() + projected_point.z());
+        reconstruction.push_back(std::make_pair(projected_point, color));
+        count++;
+    }
+}
+
 void GLWidget::initProjection(std::vector<std::pair<QVector3D, QColor>> quader, std::vector<std::pair<QVector3D, QColor>> &projectionQuader, int focalLength, QVector4D projectionCenter, QVector4D imagePrinciplePoint, QVector3D camera_rotation)
 {
     QVector4D image_plane = calculate_image_plane_equation(imagePrinciplePoint.toVector3D(), camera_rotation);
@@ -551,6 +572,17 @@ void GLWidget::initProjection(std::vector<std::pair<QVector3D, QColor>> quader, 
         QVector3D projected_point = centralProjection(focalLength, vertex.first, projectionCenter.toVector3D(), imagePrinciplePoint.toVector3D(), camera_rotation, image_plane);
         projectionQuader.push_back(std::make_pair(projected_point, color));
     }
+}
+
+QVector3D GLWidget::stereoVisionNormalCaseReconstruction(float focalLength, float b, QVector3D vertex1, QVector3D vertex2)
+{
+    // calculate z
+    // b = disparity in x direction between images
+    float z = -focalLength * ( b / (vertex2.x() - vertex1.x()));
+    float y = -z * (vertex1.y()/focalLength);
+    // float y_control = -z * (vertex2.y()/focalLength);
+    float x = -z * (vertex1.x()/focalLength);
+    return QVector3D(x, y, z);
 }
 
 QVector4D GLWidget::calculate_image_plane_equation(QVector3D imagePrinciplePoint, QVector3D rotation)
@@ -597,7 +629,8 @@ QVector3D GLWidget::centralProjection(float focalLength, QVector3D vertex, QVect
     float y = imagePrinciplePoint.y() + focalLength * ( (y_term_1 + y_term_2 + y_term_3) / (y_term_4 + y_term_5 + y_term_6));
 
     // calculate z
-    float z = (1 / image_plane.z()) * (image_plane.w() -(image_plane.x() * x) - (image_plane.y() * y)) ;
+    //float z = (1 / image_plane.z()) * (image_plane.w() -(image_plane.x() * x) - (image_plane.y() * y)) ;
+    float z = focalLength + projectionCenter.z();
     return QVector3D(x, y, z);
 }
 

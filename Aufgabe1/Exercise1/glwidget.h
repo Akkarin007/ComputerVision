@@ -65,6 +65,7 @@ private:
   void initPerspectiveCameraModel(std::vector<std::pair<QVector3D, QColor>> &perspectiveCameraModelAxesLines, QVector4D translation, QVector3D rotation);
   void initImagePlane(std::vector<std::pair<QVector3D, QColor>> &imagePlaneLines, std::vector<std::pair<QVector3D, QColor>> &imagePlaneAxes, QVector4D positionInWorld, float size, float focal_length, QVector3D rotation, QVector4D imagePrinciplePoint);
   void initProjection(std::vector<std::pair<QVector3D, QColor>> quader, std::vector<std::pair<QVector3D, QColor>> &projectionQuader, int focalLength, QVector4D projectionCenter, QVector4D imagePrinciplePoint, QVector3D camera_rotation);
+  void initStereoVisionNormalCaseReconstruction(std::vector<std::pair<QVector3D, QColor>> projection1, std::vector<std::pair<QVector3D, QColor>> projection2, std::vector<std::pair<QVector3D, QColor>> &reconstruction, float focalLength, QVector3D camera_1_pos, QVector3D camera_2_pos);
   QVector4D calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation);
   QVector4D calculate_image_plane_equation(QVector3D imagePrinciplePoint, QVector3D rotation);
   
@@ -86,13 +87,14 @@ private:
 
   boolean _show_aufgabe_1 = false;
   boolean _show_aufgabe_2 = true;
-  boolean _disable_rays_camera1 = false;
-  boolean _disable_rays_camera2 = false;
+  boolean _disable_rays_camera1 = true;
+  boolean _disable_rays_camera2 = true;
   boolean _disable_cubes = false;
   boolean _disable_projection = false;
   boolean _disable_image_plane = false;
-  boolean _disable_camera1 = true;
+  boolean _disable_camera1 = false;
   boolean _disable_camera2 = false;
+  boolean _disable_correct_reconstruction = false;
 
   QMatrix4x4 _projectionMatrix;
   QMatrix4x4 _cameraMatrix;
@@ -102,5 +104,6 @@ private:
 
   QSharedPointer<Camera> _currentCamera;
   QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint, QVector3D rotation, QVector4D image_plane);
+  QVector3D stereoVisionNormalCaseReconstruction(float focalLength, float b, QVector3D vertex1, QVector3D vertex2);
   void initProjectionLines(std::vector<std::pair<QVector3D, QColor>> quader, std::vector<std::pair<QVector3D, QColor>> &projectionLines, QVector4D projectionCenter);
 };
