@@ -218,10 +218,9 @@ void GLWidget::aufgabe_1()
     // Draw here your objects as in drawFrameAxis();
     QVector4D positionWorldQuaderOne = QVector4D(0.0, 0.0, 8.0, 1.0);
     QVector4D positionWorldQuaderTwo = QVector4D(1.0, 1.0, 6.0, 1.0);
+    initQuader(quaderOne, positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
+    initQuader(quaderTwo, positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
     if (!_disable_cubes) {
-        initQuader(quaderOne, positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
-        initQuader(quaderTwo, positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
-
         drawLines(quaderOne);
         drawLines(quaderTwo);
     }
@@ -231,32 +230,31 @@ void GLWidget::aufgabe_1()
     QVector4D positionWorldCamera = QVector4D(1.0, 1.0, 1.0, 1.0);
     float focalLength = 2;
     float imagePlaneSize = 1;
-    QVector3D cameraRotation = QVector3D(0, 0, 0);
     QVector4D projectionCenter = positionWorldCamera;
-    QVector4D imagePrinciplePoint = calculateImagePrinciplePoint(focalLength, positionWorldCamera, cameraRotation);
+    QVector4D imagePrinciplePoint = calculateImagePrinciplePoint(focalLength, positionWorldCamera, _rotation_camera_1);
 
-    initPerspectiveCameraModel(perspectiveCameraModelAxesLines, positionWorldCamera, cameraRotation);
+    initPerspectiveCameraModel(perspectiveCameraModelAxesLines, positionWorldCamera, _rotation_camera_1);
+    initImagePlane(imagePlaneLines, imagePlaneAxes ,positionWorldCamera, imagePlaneSize, focalLength, _rotation_camera_1, imagePrinciplePoint);
     drawLines(perspectiveCameraModelAxesLines);
 
     if (!_disable_image_plane) {
-        initImagePlane(imagePlaneLines, imagePlaneAxes ,positionWorldCamera, imagePlaneSize, focalLength, cameraRotation, imagePrinciplePoint);
         drawLines(imagePlaneLines);
         drawLines(imagePlaneAxes);
     }
 
     // Assignement 1, Part 3
     // Draw here the perspective projection
+    initProjection(quaderOne, quaderOneProjection, focalLength, projectionCenter, imagePrinciplePoint, _rotation_camera_1);
+    initProjection(quaderTwo, quaderTwoProjection, focalLength, projectionCenter, imagePrinciplePoint, _rotation_camera_1);
     if (!_disable_projection) {
-        initProjection(quaderOne, quaderOneProjection, focalLength, projectionCenter, imagePrinciplePoint, cameraRotation);
-        initProjection(quaderTwo, quaderTwoProjection, focalLength, projectionCenter, imagePrinciplePoint, cameraRotation);
         drawLines(quaderOneProjection);
         drawLines(quaderTwoProjection);
     }
 
     // Draw projection Lines
-    if (!_disable_rays_camera1) {
-        initProjectionLines(quaderOne, projectionLines, projectionCenter);
-        initProjectionLines(quaderTwo, projectionLines, projectionCenter);
+    initProjectionLines(quaderOne, projectionLines, projectionCenter);
+    initProjectionLines(quaderTwo, projectionLines, projectionCenter);
+    if (!_disable_rays) {
         drawLines(projectionLines);
     }
 }
@@ -278,10 +276,9 @@ void GLWidget::aufgabe_2()
     // Draw Cubes
     QVector4D positionWorldQuaderOne = QVector4D(0.0, 0.0, 8.0, 1.0);
     QVector4D positionWorldQuaderTwo = QVector4D(1.0, 1.0, 6.0, 1.0);
+    initQuader(quaderOne, positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
+    initQuader(quaderTwo, positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
     if (!_disable_cubes) {
-        initQuader(quaderOne, positionWorldQuaderOne, 0.80, 0.0, 30, 0.0);
-        initQuader(quaderTwo, positionWorldQuaderTwo, 1.20, 30.0, 0.0, 0.0);
-
         drawLines(quaderOne);
         drawLines(quaderTwo);
     }
@@ -290,32 +287,31 @@ void GLWidget::aufgabe_2()
     QVector4D camera_1_positionWorld = QVector4D(0.5, 1.0, 1.0, 1.0);
     float camera_1_focalLength = 2;
     float camera_1_imagePlaneSize = 1;
-    QVector3D camera_1_cameraRotation = QVector3D(0, 0, 0);
     QVector4D camera_1_projectionCenter = camera_1_positionWorld;
-    QVector4D camera_1_imagePrinciplePoint = calculateImagePrinciplePoint(camera_1_focalLength, camera_1_positionWorld, camera_1_cameraRotation);
+    QVector4D camera_1_imagePrinciplePoint = calculateImagePrinciplePoint(camera_1_focalLength, camera_1_positionWorld, _rotation_camera_1);
     if (!_disable_camera1) {
-        initPerspectiveCameraModel(perspectiveCameraModelAxesLines, camera_1_positionWorld, camera_1_cameraRotation);
+        initPerspectiveCameraModel(perspectiveCameraModelAxesLines, camera_1_positionWorld, _rotation_camera_1);
+        initImagePlane(imagePlaneLines, imagePlaneAxes ,camera_1_positionWorld, camera_1_imagePlaneSize, camera_1_focalLength, _rotation_camera_1, camera_1_imagePrinciplePoint);
         drawLines(perspectiveCameraModelAxesLines);
 
         // draw camera
         if (!_disable_image_plane) {
-            initImagePlane(imagePlaneLines, imagePlaneAxes ,camera_1_positionWorld, camera_1_imagePlaneSize, camera_1_focalLength, camera_1_cameraRotation, camera_1_imagePrinciplePoint);
             drawLines(imagePlaneLines);
             drawLines(imagePlaneAxes);
         }
 
         // draw projection
+        initProjection(quaderOne, camera_1_quaderOneProjection, camera_1_focalLength, camera_1_projectionCenter, camera_1_imagePrinciplePoint, _rotation_camera_1);
+        initProjection(quaderTwo, camera_1_quaderTwoProjection, camera_1_focalLength, camera_1_projectionCenter, camera_1_imagePrinciplePoint, _rotation_camera_1);
         if (!_disable_projection) {
-            initProjection(quaderOne, camera_1_quaderOneProjection, camera_1_focalLength, camera_1_projectionCenter, camera_1_imagePrinciplePoint, camera_1_cameraRotation);
-            initProjection(quaderTwo, camera_1_quaderTwoProjection, camera_1_focalLength, camera_1_projectionCenter, camera_1_imagePrinciplePoint, camera_1_cameraRotation);
             drawLines(camera_1_quaderOneProjection);
             drawLines(camera_1_quaderTwoProjection);
         }
 
         // draw projection Lines
-        if (!_disable_rays_camera1) {
-            initProjectionLines(quaderOne, projectionLines,  camera_1_projectionCenter);
-            initProjectionLines(quaderTwo, projectionLines, camera_1_projectionCenter);
+        initProjectionLines(quaderOne, projectionLines,  camera_1_projectionCenter);
+        initProjectionLines(quaderTwo, projectionLines, camera_1_projectionCenter);
+        if (!_disable_rays) {
             drawLines(projectionLines);
         }
     }
@@ -324,31 +320,30 @@ void GLWidget::aufgabe_2()
     QVector4D camera_2_positionWorld = QVector4D(2.5, 1.0, 1, 1.0);
     float camera_2_focalLength = 2;
     float camera_2_imagePlaneSize = 1;
-    QVector3D camera_2_cameraRotation = QVector3D(0, 10, 0);
     QVector4D camera_2_projectionCenter = camera_2_positionWorld;
-    QVector4D camera_2_imagePrinciplePoint = calculateImagePrinciplePoint(camera_2_focalLength, camera_2_positionWorld, camera_2_cameraRotation);
+    QVector4D camera_2_imagePrinciplePoint = calculateImagePrinciplePoint(camera_2_focalLength, camera_2_positionWorld, _rotation_camera_2);
     if (!_disable_camera2) {
-        initPerspectiveCameraModel(perspectiveCameraModelAxesLines, camera_2_positionWorld, camera_2_cameraRotation);
+        initPerspectiveCameraModel(perspectiveCameraModelAxesLines, camera_2_positionWorld, _rotation_camera_2);
+        initImagePlane(imagePlaneLines, imagePlaneAxes ,camera_2_positionWorld, camera_2_imagePlaneSize, camera_2_focalLength, _rotation_camera_2, camera_2_imagePrinciplePoint);
         drawLines(perspectiveCameraModelAxesLines);
         // draw camera
         if (!_disable_image_plane) {
-            initImagePlane(imagePlaneLines, imagePlaneAxes ,camera_2_positionWorld, camera_2_imagePlaneSize, camera_2_focalLength, camera_2_cameraRotation, camera_2_imagePrinciplePoint);
             drawLines(imagePlaneLines);
             drawLines(imagePlaneAxes);
         }
 
         // draw projection
+        initProjection(quaderOne, camera_2_quaderOneProjection, camera_2_focalLength, camera_2_projectionCenter, camera_2_imagePrinciplePoint, _rotation_camera_2);
+        initProjection(quaderTwo, camera_2_quaderTwoProjection, camera_2_focalLength, camera_2_projectionCenter, camera_2_imagePrinciplePoint, _rotation_camera_2);
         if (!_disable_projection) {
-            initProjection(quaderOne, camera_2_quaderOneProjection, camera_2_focalLength, camera_2_projectionCenter, camera_2_imagePrinciplePoint, camera_2_cameraRotation);
-            initProjection(quaderTwo, camera_2_quaderTwoProjection, camera_2_focalLength, camera_2_projectionCenter, camera_2_imagePrinciplePoint, camera_2_cameraRotation);
             drawLines(camera_2_quaderOneProjection);
             drawLines(camera_2_quaderTwoProjection);
         }
 
         // draw projection lines
-        if (!_disable_rays_camera2) {
-            initProjectionLines(quaderOne, projectionLines, camera_2_projectionCenter);
-            initProjectionLines(quaderTwo, projectionLines, camera_2_projectionCenter);
+        initProjectionLines(quaderOne, projectionLines, camera_2_projectionCenter);
+        initProjectionLines(quaderTwo, projectionLines, camera_2_projectionCenter);
+        if (!_disable_rays) {
             drawLines(projectionLines);
         }
     }
@@ -356,11 +351,13 @@ void GLWidget::aufgabe_2()
     // reconstruct cubes
     std::vector<std::pair<QVector3D, QColor> > quaderOneCorrectReconstruction;
     std::vector<std::pair<QVector3D, QColor> > quaderTwoCorrectReconstruction;
-    if (!_disable_correct_reconstruction) {
+    if (!_disable_camera1 && !_disable_camera2) {
         initStereoVisionNormalCaseReconstruction(camera_1_quaderOneProjection, camera_2_quaderOneProjection, quaderOneCorrectReconstruction, camera_1_focalLength, camera_1_positionWorld.toVector3D(), camera_2_positionWorld.toVector3D());
         initStereoVisionNormalCaseReconstruction(camera_1_quaderTwoProjection, camera_2_quaderTwoProjection, quaderTwoCorrectReconstruction, camera_1_focalLength, camera_1_positionWorld.toVector3D(), camera_2_positionWorld.toVector3D());
-        drawLines(quaderOneCorrectReconstruction);
-        drawLines(quaderTwoCorrectReconstruction);
+        if (!_disable_reconstruction) {
+            drawLines(quaderOneCorrectReconstruction);
+            drawLines(quaderTwoCorrectReconstruction);
+        }
     }
     // reconstruct cubes wrong
 }
@@ -804,10 +801,10 @@ void GLWidget::disable_projection()
 
 void GLWidget::disable_rays()
 {
-    if (_disable_rays_camera1 == true) {
-        _disable_rays_camera1 = false;
+    if (_disable_rays == true) {
+        _disable_rays = false;
     } else {
-        _disable_rays_camera1 = true;
+        _disable_rays = true;
     }
     update();
 }
@@ -818,6 +815,36 @@ void GLWidget::disable_image_plane()
         _disable_image_plane = false;
     } else {
         _disable_image_plane = true;
+    }
+    update();
+}
+
+void GLWidget::disable_camera_1()
+{
+    if (_disable_camera1 == true) {
+        _disable_camera1 = false;
+    } else {
+        _disable_camera1 = true;
+    }
+    update();
+}
+
+void GLWidget::disable_camera_2()
+{
+    if (_disable_camera2 == true) {
+        _disable_camera2 = false;
+    } else {
+        _disable_camera2 = true;
+    }
+    update();
+}
+
+void GLWidget::disable_reconstruction()
+{
+    if (_disable_reconstruction == true) {
+        _disable_reconstruction = false;
+    } else {
+        _disable_reconstruction = true;
     }
     update();
 }

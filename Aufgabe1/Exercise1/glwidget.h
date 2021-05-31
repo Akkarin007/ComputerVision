@@ -37,6 +37,9 @@ public slots:
     void disable_cubes();
     void disable_projection();
     void disable_image_plane();
+    void disable_camera_1();
+    void disable_camera_2();
+    void disable_reconstruction();
     void setPointSize(size_t size);
     void attachCamera(QSharedPointer<Camera> camera);
 
@@ -85,20 +88,22 @@ private:
   void aufgabe_1();
   void aufgabe_2();
 
-  boolean _show_aufgabe_1 = false;
-  boolean _show_aufgabe_2 = true;
-  boolean _disable_rays_camera1 = true;
-  boolean _disable_rays_camera2 = true;
-  boolean _disable_cubes = false;
-  boolean _disable_projection = false;
-  boolean _disable_image_plane = false;
-  boolean _disable_camera1 = false;
-  boolean _disable_camera2 = false;
-  boolean _disable_correct_reconstruction = false;
+  bool _show_aufgabe_1 = false;
+  bool _show_aufgabe_2 = true;
+  bool _disable_rays = false;
+  bool _disable_cubes = false;
+  bool _disable_projection = false;
+  bool _disable_image_plane = false;
+  bool _disable_camera1 = false;
+  bool _disable_camera2 = false;
+  bool _disable_reconstruction = false;
 
   QMatrix4x4 _projectionMatrix;
   QMatrix4x4 _cameraMatrix;
   QMatrix4x4 _worldMatrix;
+
+  QVector3D _rotation_camera_1 = QVector3D(0, 0, 0);
+  QVector3D _rotation_camera_2 = QVector3D(0, 0, 0);
 
   PointCloud pointcloud;
 

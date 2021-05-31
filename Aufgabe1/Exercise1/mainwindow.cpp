@@ -19,10 +19,13 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->radioButton_1,&QRadioButton::clicked,ui->glwidget,&GLWidget::radioButton1Clicked);
     QObject::connect(ui->radioButton_2,&QRadioButton::clicked,ui->glwidget,&GLWidget::radioButton2Clicked);
 
-//    QObject::connect(ui->checkbox_1,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_rays);
-//    QObject::connect(ui->checkbox_2,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_cubes);
-//    QObject::connect(ui->checkbox_3,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_projection);
-//    QObject::connect(ui->checkbox_4,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_image_plane);
+    QObject::connect(ui->checkBox,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_camera_1);
+    QObject::connect(ui->checkBox_2,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_camera_2);
+    QObject::connect(ui->checkBox_3,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_cubes);
+    QObject::connect(ui->checkBox_4,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_projection);
+    QObject::connect(ui->checkBox_5,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_reconstruction);
+    QObject::connect(ui->checkBox_6,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_rays);
+    QObject::connect(ui->checkBox_7,&QCheckBox::clicked,ui->glwidget,&GLWidget::disable_image_plane);
 
     updatePointSize(1);
 
