@@ -76,7 +76,6 @@ void GLWidget::initializeGL()
   createContainers();
 }
 
-
 QMatrix4x4 GLWidget::rotation_z(float alpha)
 {
     //alpha1
@@ -195,10 +194,12 @@ void GLWidget::paintGL()
     if (_show_aufgabe_1 == true)
     {
         aufgabe_1();
-    }
-    if (_show_aufgabe_2 == true)
+    } else if (_show_aufgabe_2 == true)
     {
         aufgabe_2();
+    } else if (_show_aufgabe_3 == true)
+    {
+        aufgabe_3();
     }
 }
 
@@ -360,6 +361,11 @@ void GLWidget::aufgabe_2()
         }
     }
     // reconstruct cubes wrong
+}
+
+void GLWidget::aufgabe_3()
+{
+
 }
 
 QVector4D GLWidget::calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation)
@@ -605,30 +611,34 @@ QVector4D GLWidget::calculate_image_plane_equation(QVector3D imagePrinciplePoint
 
 QVector3D GLWidget::centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint, QVector3D rotation, QVector4D image_plane)
 {
-    QMatrix4x4 rotation_matrix = (rotation_x(rotation.x()) * rotation_y(rotation.y()) * rotation_z(rotation.z())).transposed();
+    QMatrix4x4 rotation_matrix_t = (rotation_x(rotation.x()) * rotation_y(rotation.y()) * rotation_z(rotation.z())).transposed();
+    QMatrix4x4 rotation_matrix = (rotation_x(rotation.x()) * rotation_y(rotation.y()) * rotation_z(rotation.z()));
 
     //calculate x
-    float x_term_1 = rotation_matrix.column(0).x() * ( vertex.x() - projectionCenter.x());
-    float x_term_2 = rotation_matrix.column(1).x() * ( vertex.y() - projectionCenter.y());
-    float x_term_3 = rotation_matrix.column(2).x() * ( vertex.z() - projectionCenter.z());
-    float x_term_4 = rotation_matrix.column(0).z() * ( vertex.x() - projectionCenter.x());
-    float x_term_5 = rotation_matrix.column(1).z() * ( vertex.y() - projectionCenter.y());
-    float x_term_6 = rotation_matrix.column(2).z() * ( vertex.z() - projectionCenter.z());
-    float x = imagePrinciplePoint.x() + focalLength * ( (x_term_1 + x_term_2 + x_term_3) / (x_term_4 + x_term_5 + x_term_6));
+    float x_term_1 = rotation_matrix_t.column(0).x() * ( vertex.x() - projectionCenter.x());
+    float x_term_2 = rotation_matrix_t.column(1).x() * ( vertex.y() - projectionCenter.y());
+    float x_term_3 = rotation_matrix_t.column(2).x() * ( vertex.z() - projectionCenter.z());
+    float x_term_4 = rotation_matrix_t.column(0).z() * ( vertex.x() - projectionCenter.x());
+    float x_term_5 = rotation_matrix_t.column(1).z() * ( vertex.y() - projectionCenter.y());
+    float x_term_6 = rotation_matrix_t.column(2).z() * ( vertex.z() - projectionCenter.z());
+    float x = focalLength * ( (x_term_1 + x_term_2 + x_term_3) / (x_term_4 + x_term_5 + x_term_6));
 
     // calculate y
-    float y_term_1 = rotation_matrix.column(0).y() * ( vertex.x() - projectionCenter.x());
-    float y_term_2 = rotation_matrix.column(1).y() * ( vertex.y() - projectionCenter.y());
-    float y_term_3 = rotation_matrix.column(2).y() * ( vertex.z() - projectionCenter.z());
-    float y_term_4 = rotation_matrix.column(0).z() * ( vertex.x() - projectionCenter.x());
-    float y_term_5 = rotation_matrix.column(1).z() * ( vertex.y() - projectionCenter.y());
-    float y_term_6 = rotation_matrix.column(2).z() * ( vertex.z() - projectionCenter.z());
-    float y = imagePrinciplePoint.y() + focalLength * ( (y_term_1 + y_term_2 + y_term_3) / (y_term_4 + y_term_5 + y_term_6));
+    float y_term_1 = rotation_matrix_t.column(0).y() * ( vertex.x() - projectionCenter.x());
+    float y_term_2 = rotation_matrix_t.column(1).y() * ( vertex.y() - projectionCenter.y());
+    float y_term_3 = rotation_matrix_t.column(2).y() * ( vertex.z() - projectionCenter.z());
+    float y_term_4 = rotation_matrix_t.column(0).z() * ( vertex.x() - projectionCenter.x());
+    float y_term_5 = rotation_matrix_t.column(1).z() * ( vertex.y() - projectionCenter.y());
+    float y_term_6 = rotation_matrix_t.column(2).z() * ( vertex.z() - projectionCenter.z());
+    float y = focalLength * ( (y_term_1 + y_term_2 + y_term_3) / (y_term_4 + y_term_5 + y_term_6));
 
     // calculate z
-    //float z = (1 / image_plane.z()) * (image_plane.w() -(image_plane.x() * x) - (image_plane.y() * y)) ;
-    float z = focalLength + projectionCenter.z();
-    return QVector3D(x, y, z);
+    float z = focalLength;
+
+    QVector3D result = QVector3D(x,y,z);
+    result = rotation_matrix * result;
+
+    return QVector3D(result.x() + projectionCenter.x(), result.y() + projectionCenter.y(), result.z() + projectionCenter.z());
 }
 
 void GLWidget::drawLines(std::vector<std::pair<QVector3D, QColor>> quader)
@@ -769,6 +779,7 @@ void GLWidget::radioButton1Clicked()
     // TODO: toggle to Jarvis' march
     _show_aufgabe_1 = true;
     _show_aufgabe_2 = false;
+    _show_aufgabe_3 = false;
     update();
 }
 
@@ -776,6 +787,15 @@ void GLWidget::radioButton2Clicked()
 {
     _show_aufgabe_1 = false;
     _show_aufgabe_2 = true;
+    _show_aufgabe_3 = false;
+    update();
+}
+
+void GLWidget::radioButton3Clicked()
+{
+    _show_aufgabe_1 = false;
+    _show_aufgabe_2 = false;
+    _show_aufgabe_3 = true;
     update();
 }
 

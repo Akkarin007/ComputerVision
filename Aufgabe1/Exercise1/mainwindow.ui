@@ -43,7 +43,7 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;R.A. Jarvis (1973):&lt;/span&gt; On the identification of the convex hull of a finite set of points in the plane. Information Processing Letters 2: 18–21. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Box 1</string>
+         <string>Aufgabe 1</string>
         </property>
        </widget>
       </item>
@@ -53,7 +53,14 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;R. Graham (1972):&lt;/span&gt; An Efficient Algorithm for Determining the Convex Hull of a Finite Planar Set, Info. Proc. Letters 1, 132-133.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>Box 2</string>
+         <string>Aufgabe 2</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton">
+        <property name="text">
+         <string>Aufgabe 3</string>
         </property>
        </widget>
       </item>

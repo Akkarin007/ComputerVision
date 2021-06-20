@@ -33,6 +33,7 @@ public slots:
     void openFileDialog();
     void radioButton1Clicked();
     void radioButton2Clicked();
+    void radioButton3Clicked();
     void disable_rays();
     void disable_cubes();
     void disable_projection();
@@ -87,9 +88,11 @@ private:
 
   void aufgabe_1();
   void aufgabe_2();
+  void aufgabe_3();
 
   bool _show_aufgabe_1 = false;
   bool _show_aufgabe_2 = true;
+  bool _show_aufgabe_3 = false;
   bool _disable_rays = false;
   bool _disable_cubes = false;
   bool _disable_projection = false;
@@ -103,7 +106,7 @@ private:
   QMatrix4x4 _worldMatrix;
 
   QVector3D _rotation_camera_1 = QVector3D(0, 0, 0);
-  QVector3D _rotation_camera_2 = QVector3D(0, 0, 0);
+  QVector3D _rotation_camera_2 = QVector3D(0, 2, 0);
 
   PointCloud pointcloud;
 
