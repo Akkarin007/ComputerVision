@@ -19,6 +19,7 @@
 
 #include "camera.h"
 #include "pointcloud.h"
+#include "tree.h"
 
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -63,6 +64,7 @@ private:
   void createContainers();
   void cleanup();
   void drawLines(std::vector<std::pair<QVector3D, QColor>>);
+  void drawKDTreeLines(std::vector<std::pair<QVector3D, QColor>>);
 
   void drawPointCloud();
   void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float, float, float, float);
@@ -73,9 +75,13 @@ private:
   QVector4D calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation);
   QVector4D calculate_image_plane_equation(QVector3D imagePrinciplePoint, QVector3D rotation);
   
-
+  Tree root;
   float _pointSize;
   std::vector<std::pair<QVector3D, QColor> > _axesLines;
+
+  std::vector<QVector3D> x_array;
+  std::vector<QVector3D> y_array;
+  std::vector<QVector3D> z_array;
 
   QMatrix4x4 rotation_x(float);
   QMatrix4x4 rotation_y(float);
@@ -89,6 +95,9 @@ private:
   void aufgabe_1();
   void aufgabe_2();
   void aufgabe_3();
+  void constructBalanced3DTree(int left, int right, Tree * node, int d, int maxLvl);
+  void partitionField(std::vector<QVector3D> test, int left, int right, QVector3D medianVec, int m, std::string dir);
+  std::vector<std::pair<QVector3D, QColor> > _kdTreeLines;
 
   bool _show_aufgabe_1 = false;
   bool _show_aufgabe_2 = true;

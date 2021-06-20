@@ -24,11 +24,13 @@ HEADERS += ./glwidget.h \
     ./mainwindow.h \
     ./camera.h\
     pointcloud.h \
-    pointcloud.h
+    pointcloud.h \
+    tree.h
 SOURCES += ./glwidget.cpp \
      ./mainwindow.cpp \
     ./camera.cpp \
     ./main.cpp \
-    pointcloud.cpp
+    pointcloud.cpp \
+    tree.cpp
 
 FORMS += ./mainwindow.ui

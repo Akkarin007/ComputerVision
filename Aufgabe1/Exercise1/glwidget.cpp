@@ -28,6 +28,22 @@
 #define PI 3.14159265
 #include "mainwindow.h"
 
+
+bool compareX(QVector3D v1, QVector3D v2)
+{
+    return (v1.x() < v2.x());
+}
+
+bool compareY(QVector3D v1, QVector3D v2)
+{
+    return (v1.y() < v2.y());
+}
+
+bool compareZ(QVector3D v1, QVector3D v2)
+{
+    return (v1.z() < v2.z());
+}
+
 //static const size_t POINT_STRIDE = 4; // x, y, z, index
 
 GLWidget::GLWidget(QWidget* parent)
@@ -366,6 +382,76 @@ void GLWidget::aufgabe_2()
 void GLWidget::aufgabe_3()
 {
 
+    constructBalanced3DTree(0, x_array.size()-2, NULL, 0, 5);
+
+    drawKDTreeLines(_kdTreeLines);
+}
+
+
+void GLWidget::constructBalanced3DTree(int left, int right, Tree * node, int d, int maxLvl)
+{
+    if (maxLvl > 0) {
+        node = new Tree;
+
+        if (left <= right){
+            int m = (left + right) / 2;
+            if (d == 0) {
+                node->data = y_array[m];
+                node->split = "y-split";
+                _kdTreeLines.push_back(std::make_pair(QVector3D(pointcloud.getMin().x(), y_array[m].y(), y_array[m].z()), QColor(1.0, 0.0, 0.0)));
+                _kdTreeLines.push_back(std::make_pair(QVector3D(pointcloud.getMax().x(), y_array[m].y(), y_array[m].z()), QColor(1.0, 0.0, 0.0)));
+
+                partitionField(x_array, left, right, y_array[m], m, "y-split");
+            } else if (d == 1) {
+                node->data = x_array[m];
+                node->split = "x-split";
+
+                _kdTreeLines.push_back(std::make_pair(QVector3D(x_array[m].x(), pointcloud.getMin().y(), x_array[m].z()), QColor(0.0, 1.0, 0.0)));
+                _kdTreeLines.push_back(std::make_pair(QVector3D(x_array[m].x(), pointcloud.getMax().y(), x_array[m].z()), QColor(0.0, 1.0, 0.0)));
+                partitionField(z_array, left, right, x_array[m], m, "x-split");
+            } else if (d == 2) {
+                node->data = z_array[m];
+                node->split = "z-split";
+
+                _kdTreeLines.push_back(std::make_pair(QVector3D(z_array[m].x(), z_array[m].y(), pointcloud.getMin().z()), QColor(0.0, 0.0, 1.0)));
+                _kdTreeLines.push_back(std::make_pair(QVector3D(z_array[m].x(), z_array[m].y(), pointcloud.getMax().z()), QColor(0.0, 0.0, 1.0)));
+                partitionField(y_array, left, right, z_array[m], m, "z-split");
+
+            }
+
+            constructBalanced3DTree(left, m-1, node->left, (d + 1) % 3, maxLvl - 1);
+            constructBalanced3DTree(m-1, right, node->right, (d + 1 ) % 3, maxLvl - 1);
+        }
+    }
+
+
+
+}
+
+
+void GLWidget::partitionField(std::vector<QVector3D> array, int left, int right, QVector3D medianVector, int m, std::string direction)
+{
+    std::vector<QVector3D> tmp1;
+    std::vector<QVector3D> tmp2;
+
+    for (int i = left; i <= right; i++) {
+        if (direction == "x-split") {
+            if(array[i].x() < medianVector.x()) tmp1.push_back(array[i]);
+            if(array[i].x() > medianVector.x()) tmp2.push_back(array[i]);
+        } else if (direction == "y-split") {
+            if(array[i].y() < medianVector.y()) tmp1.push_back(array[i]);
+            if(array[i].y() > medianVector.y()) tmp2.push_back(array[i]);
+        } else if (direction == "z-split") {
+            if(array[i].z() < medianVector.z()) tmp1.push_back(array[i]);
+            if(array[i].z() > medianVector.z()) tmp2.push_back(array[i]);
+        }
+
+
+
+    }
+    for (int i = 0; i < tmp1.size(); i++) array[left + i] = tmp1[i];
+    for (int i = 0; i < tmp2.size(); i++) array[m + i + 1] = tmp2[i];
+
 }
 
 QVector4D GLWidget::calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation)
@@ -654,6 +740,18 @@ void GLWidget::drawLines(std::vector<std::pair<QVector3D, QColor>> quader)
   glEnd();
 }
 
+void GLWidget::drawKDTreeLines(std::vector<std::pair<QVector3D, QColor>> quader)
+{
+  glBegin(GL_LINES);
+   const auto viewMatrix = _projectionMatrix * _cameraMatrix * _worldMatrix;
+  for (auto vertex : quader) {
+    const auto translated = viewMatrix * vertex.first;
+    glColor3f(vertex.second.red(), vertex.second.green(), vertex.second.blue());
+    glVertex3f(translated.x(), translated.y(), translated.z());
+  }
+  glEnd();
+}
+
 void GLWidget::resizeGL(int w, int h)
 {
   _projectionMatrix.setToIdentity();
@@ -780,6 +878,11 @@ void GLWidget::radioButton1Clicked()
     _show_aufgabe_1 = true;
     _show_aufgabe_2 = false;
     _show_aufgabe_3 = false;
+    pointcloud._pointsData.clear();
+    x_array.clear();
+    y_array.clear();
+    z_array.clear();
+
     update();
 }
 
@@ -788,16 +891,58 @@ void GLWidget::radioButton2Clicked()
     _show_aufgabe_1 = false;
     _show_aufgabe_2 = true;
     _show_aufgabe_3 = false;
+    pointcloud._pointsData.clear();
+    x_array.clear();
+    y_array.clear();
+    z_array.clear();
+
     update();
 }
+
 
 void GLWidget::radioButton3Clicked()
 {
     _show_aufgabe_1 = false;
     _show_aufgabe_2 = false;
     _show_aufgabe_3 = true;
+    pointcloud.loadPLY("C:/Users/ismoz/Documents/00_Studium/Aufgabe1/data/bunny.ply");
+    x_array.clear();
+    y_array.clear();
+    z_array.clear();
+
+    const QVector<float>& pointsData = pointcloud.getData();
+    QVectorIterator<float> i(pointsData);
+    const float *p = pointsData.data();
+    for (size_t i = 0; i < pointsData.size(); ++i) {
+
+      float x, y, z;
+
+      x = *p++;
+      y = *p++;
+      z = *p++;
+      i = *p++;
+      QVector3D vec = QVector3D(x,y,z);
+      x_array.push_back(vec);
+      y_array.push_back(vec);
+      z_array.push_back(vec);
+
+    }
+
+    std::sort(x_array.begin(), x_array.end(), compareX);
+    std::sort(y_array.begin(), y_array.end(), compareY);
+    std::sort(z_array.begin(), z_array.end(), compareZ);
+    std::cout << "sorting done for x, y, z Arrays in Task 3"<< std::endl;
+    //for (auto x : x_array)
+    //    std::cout << "x[" << x.x() << ", " << x.y() << ", " << x.z() << "] "<< std::endl;
+    //for (auto y : y_array)
+    //    std::cout << "y[" << y.x() << ", " << y.y() << ", " << y.z()<< "] "<< std::endl;
+    //for (auto z : z_array)
+    //    std::cout << "z[" << z.x() << ", " << z.y() << ", " << z.z() << "] "<< std::endl;
+
     update();
 }
+
+
 
 void GLWidget::disable_cubes()
 {
