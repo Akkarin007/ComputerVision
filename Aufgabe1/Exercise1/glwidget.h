@@ -100,7 +100,7 @@ private:
   void aufgabe_2();
   void aufgabe_3_1();
   void aufgabe_3_2();
-  Octtree init_octtree(std::vector<std::pair<QVector3D, QColor> >);
+  Octtree init_octtree(std::vector<std::pair<QVector3D, QColor> > &octtree_lines);
   void load_point_cloud();
   void constructBalanced3DTree(int left, int right, Tree * node, int d, int maxLvl);
   void partitionField(std::vector<QVector3D> test, int left, int right, QVector3D medianVec, int m, std::string dir);

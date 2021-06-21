@@ -20,6 +20,7 @@ class Node
         Node(QVector3D new_near_bot_left, QVector3D new_far_top_right, float new_length);
         void split();
         void set_leaf(int index, QVector3D *tmp_leaf_value);
+        void set_leaf_2(QVector3D *tmp_leaf_value);
         int get_index(QVector3D val);
         int get_index_0_3(QVector3D val);
         int get_index_4_7(QVector3D val);

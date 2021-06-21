@@ -14,7 +14,7 @@ public:
 
     //functions
     Octtree(QVector3D new_near_bot_left, QVector3D new_far_top_right, float new_length);
-    void get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> octtree_lines, QColor colour, int depth, Node *current);
+    void get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> &octtree_lines, QColor colour, int depth, Node *current);
     bool insert_point(QVector3D point, Node *current);
 };
 #endif // OCTTREE_H

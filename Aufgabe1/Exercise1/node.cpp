@@ -53,11 +53,15 @@ void Node::split()
 
 void Node::set_leaf(int index, QVector3D *tmp_leaf_value)
 {
-    if (index == -1)
+    if (index == -2)
     {
         this->is_empty = false;
         this->is_leaf = true;
         this->leaf_value = tmp_leaf_value;
+    }
+    else if (index == -1)
+    {
+        return;
     }
     else
     {
@@ -65,6 +69,13 @@ void Node::set_leaf(int index, QVector3D *tmp_leaf_value)
         this->children[index]->is_leaf = true;
         this->children[index]->leaf_value = tmp_leaf_value;
     }
+}
+
+void Node::set_leaf_2(QVector3D *tmp_leaf_value)
+{
+    this->is_empty = false;
+    this->is_leaf = true;
+    this->leaf_value = tmp_leaf_value;
 }
 
 int Node::get_index(QVector3D val)

@@ -1,17 +1,14 @@
 #include <octtree.h>
 
+
 Octtree::Octtree(QVector3D new_near_bot_left, QVector3D new_far_top_right, float new_length)
 {
     Node *tmp = new Node(new_near_bot_left, new_far_top_right, new_length);
     this->root = tmp;
 }
 
-void Octtree::get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> octtree_lines, QColor colour, int depth, Node *current)
+void Octtree::get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> &octtree_lines, QColor colour, int depth, Node *current)
 {
-    // handle leaf
-    if (current->is_empty) {
-        return;
-    }
 
     // add lines
     QVector3D point1 = current->near_bot_left;
@@ -62,8 +59,9 @@ void Octtree::get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> octtre
 
     octtree_lines.push_back(std::make_pair(point4, colour));
     octtree_lines.push_back(std::make_pair(point8, colour));
+
     // handle depth
-    if (depth == 0)
+    if (depth == 0 || current->is_empty)
     {
         return;
     }
@@ -87,7 +85,7 @@ bool Octtree::insert_point(QVector3D point, Node *current)
     // handle nullpointer in children
     if (current->is_empty)
     {
-        current->set_leaf(-1, &point);
+        current->set_leaf_2(&point);
         return true;
     }
 
@@ -95,6 +93,7 @@ bool Octtree::insert_point(QVector3D point, Node *current)
     int index = current->get_index(point);
     if (index > -1)
     {
+
         if (insert_point(point, current->children[index]))
         {
             return true;

@@ -411,11 +411,11 @@ void GLWidget::aufgabe_3_2()
     }
 }
 
-Octtree GLWidget::init_octtree(std::vector<std::pair<QVector3D, QColor> > octtree_lines)
+Octtree GLWidget::init_octtree(std::vector<std::pair<QVector3D, QColor> > &octtree_lines)
 {
     QVector3D point1 = QVector3D(-6,-4,-6);
     QVector3D point2 = QVector3D(4,6,4);
-    float length = 2.0;
+    float length = 10.0;
     Octtree *octtree = new Octtree(point1, point2, length);
 
     //octtree_lines.push_back(std::make_pair(point1, QColor(1,0,0)));
