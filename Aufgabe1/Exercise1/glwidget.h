@@ -68,6 +68,8 @@ private:
   void cleanup();
   void drawLines(std::vector<std::pair<QVector3D, QColor>>);
   void drawKDTreeLines(std::vector<std::pair<QVector3D, QColor>>);
+  void drawKDTreePoints(std::vector<std::pair<QVector3D, QColor>> quader);
+
 
   void drawPointCloud();
   void initQuader(std::vector<std::pair<QVector3D, QColor>>&, QVector4D, float, float, float, float);
@@ -102,7 +104,7 @@ private:
   void aufgabe_3_2();
   Octtree init_octtree(std::vector<std::pair<QVector3D, QColor> > &octtree_lines);
   void load_point_cloud();
-  void constructBalanced3DTree(int left, int right, Tree * node, int d, int maxLvl);
+  void constructBalanced3DTree(std::vector<std::pair<QVector3D, QColor> > &kdTreeLines, std::vector<std::pair<QVector3D, QColor> > &points, int left, int right, Tree * node, int d, int maxLvl);
   void partitionField(std::vector<QVector3D> test, int left, int right, QVector3D medianVec, int m, std::string dir);
   std::vector<std::pair<QVector3D, QColor> > _kdTreeLines;
 
@@ -128,7 +130,7 @@ private:
 
   PointCloud pointcloud;
   bool _load_point_cloud = true;
-  QString _point_cloud_path = "C:/Users/keller/Desktop/bunny.ply";
+  QString _point_cloud_path = "C:/Users/ismoz/Documents/00_Studium/Aufgabe1/data/bunny.ply";
 
   QSharedPointer<Camera> _currentCamera;
   QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint, QVector3D rotation, QVector4D image_plane);

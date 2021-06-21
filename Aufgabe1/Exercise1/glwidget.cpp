@@ -390,10 +390,18 @@ void GLWidget::aufgabe_3_1()
     if (_load_point_cloud) {
         load_point_cloud();
     }
-    constructBalanced3DTree(0, x_array.size()-2, NULL, 0, 5);
+
+
+    std::vector<std::pair<QVector3D, QColor> > kdTreeLines;
+    std::vector<std::pair<QVector3D, QColor> > kdTreePoints;
+    constructBalanced3DTree(kdTreeLines, kdTreePoints, 0, x_array.size()-2, NULL, 0, 4);
+
+
     if (!_disable_tree)
     {
-        drawKDTreeLines(_kdTreeLines);
+        drawKDTreeLines(kdTreeLines);
+
+        drawKDTreePoints(kdTreePoints);
     }
 }
 
@@ -468,6 +476,7 @@ void GLWidget::load_point_cloud()
     std::sort(x_array.begin(), x_array.end(), compareX);
     std::sort(y_array.begin(), y_array.end(), compareY);
     std::sort(z_array.begin(), z_array.end(), compareZ);
+
     std::cout << "sorting done for x, y, z Arrays in Task 3"<< std::endl;
     //for (auto x : x_array)
     //    std::cout << "x[" << x.x() << ", " << x.y() << ", " << x.z() << "] "<< std::endl;
@@ -479,7 +488,7 @@ void GLWidget::load_point_cloud()
     update();
 }
 
-void GLWidget::constructBalanced3DTree(int left, int right, Tree * node, int d, int maxLvl)
+void GLWidget::constructBalanced3DTree(std::vector<std::pair<QVector3D, QColor> > &kdTreeLines, std::vector<std::pair<QVector3D, QColor> > &points, int left, int right, Tree * node, int d, int maxLvl)
 {
     if (maxLvl > 0) {
         node = new Tree;
@@ -489,29 +498,37 @@ void GLWidget::constructBalanced3DTree(int left, int right, Tree * node, int d, 
             if (d == 0) {
                 node->data = y_array[m];
                 node->split = "y-split";
-                _kdTreeLines.push_back(std::make_pair(QVector3D(pointcloud.getMin().x(), y_array[m].y(), y_array[m].z()), QColor(1.0, 0.0, 0.0)));
-                _kdTreeLines.push_back(std::make_pair(QVector3D(pointcloud.getMax().x(), y_array[m].y(), y_array[m].z()), QColor(1.0, 0.0, 0.0)));
+
+                points.push_back(std::make_pair(QVector3D(y_array[m].x(), y_array[m].y(), y_array[m].z()), QColor(0.0, 1.0, 1.0)));
+
+                kdTreeLines.push_back(std::make_pair(QVector3D(pointcloud.getMin().x(), y_array[m].y(), y_array[m].z()), QColor(1.0, 0.0, 0.0)));
+                kdTreeLines.push_back(std::make_pair(QVector3D(pointcloud.getMax().x(), y_array[m].y(), y_array[m].z()), QColor(1.0, 0.0, 0.0)));
 
                 partitionField(x_array, left, right, y_array[m], m, "y-split");
             } else if (d == 1) {
                 node->data = x_array[m];
                 node->split = "x-split";
 
-                _kdTreeLines.push_back(std::make_pair(QVector3D(x_array[m].x(), pointcloud.getMin().y(), x_array[m].z()), QColor(0.0, 1.0, 0.0)));
-                _kdTreeLines.push_back(std::make_pair(QVector3D(x_array[m].x(), pointcloud.getMax().y(), x_array[m].z()), QColor(0.0, 1.0, 0.0)));
+                points.push_back(std::make_pair(QVector3D(x_array[m].x(), x_array[m].y(), x_array[m].z()), QColor(0.0, 1.0, 1.0)));
+
+                kdTreeLines.push_back(std::make_pair(QVector3D(x_array[m].x(), pointcloud.getMin().y(), x_array[m].z()), QColor(0.0, 1.0, 0.0)));
+                kdTreeLines.push_back(std::make_pair(QVector3D(x_array[m].x(), pointcloud.getMax().y(), x_array[m].z()), QColor(0.0, 1.0, 0.0)));
                 partitionField(z_array, left, right, x_array[m], m, "x-split");
             } else if (d == 2) {
                 node->data = z_array[m];
                 node->split = "z-split";
 
-                _kdTreeLines.push_back(std::make_pair(QVector3D(z_array[m].x(), z_array[m].y(), pointcloud.getMin().z()), QColor(0.0, 0.0, 1.0)));
-                _kdTreeLines.push_back(std::make_pair(QVector3D(z_array[m].x(), z_array[m].y(), pointcloud.getMax().z()), QColor(0.0, 0.0, 1.0)));
+                points.push_back(std::make_pair(QVector3D(z_array[m].x(), z_array[m].y(), z_array[m].z()), QColor(0.0, 1.0, 1.0)));
+
+                kdTreeLines.push_back(std::make_pair(QVector3D(z_array[m].x(), z_array[m].y(), pointcloud.getMin().z()), QColor(0.0, 0.0, 1.0)));
+                kdTreeLines.push_back(std::make_pair(QVector3D(z_array[m].x(), z_array[m].y(), pointcloud.getMax().z()), QColor(0.0, 0.0, 1.0)));
+
                 partitionField(y_array, left, right, z_array[m], m, "z-split");
 
             }
 
-            constructBalanced3DTree(left, m-1, node->left, (d + 1) % 3, maxLvl - 1);
-            constructBalanced3DTree(m+1, right, node->right, (d + 1 ) % 3, maxLvl - 1);
+            constructBalanced3DTree(kdTreeLines, points,left, m-1, node->left, (d + 1) % 3, maxLvl - 1);
+            constructBalanced3DTree(kdTreeLines, points, m+1, right, node->right, (d + 1 ) % 3, maxLvl - 1);
         }
     }
 }
@@ -827,9 +844,24 @@ void GLWidget::drawLines(std::vector<std::pair<QVector3D, QColor>> quader)
   glEnd();
 }
 
+void GLWidget::drawKDTreePoints(std::vector<std::pair<QVector3D, QColor>> quader)
+{
+  glEnable(GL_PROGRAM_POINT_SIZE);
+  glPointSize(8.0f);
+  glBegin(GL_POINTS);
+   const auto viewMatrix = _projectionMatrix * _cameraMatrix * _worldMatrix;
+  for (auto vertex : quader) {
+    const auto translated = viewMatrix * vertex.first;
+    glColor3f(vertex.second.red(), vertex.second.green(), vertex.second.blue());
+    glVertex3f(translated.x(), translated.y(), translated.z());
+  }
+  glEnd();
+}
+
 void GLWidget::drawKDTreeLines(std::vector<std::pair<QVector3D, QColor>> quader)
 {
   glBegin(GL_LINES);
+
    const auto viewMatrix = _projectionMatrix * _cameraMatrix * _worldMatrix;
   for (auto vertex : quader) {
     const auto translated = viewMatrix * vertex.first;
