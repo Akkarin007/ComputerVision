@@ -28,7 +28,6 @@
 #define PI 3.14159265
 #include "mainwindow.h"
 
-
 bool compareX(QVector3D v1, QVector3D v2)
 {
     return (v1.x() < v2.x());
@@ -198,24 +197,31 @@ void GLWidget::paintGL()
     const double frontClippingPlane[] = {0., 0., 1., camera.frontClippingDistance};
     glClipPlane(GL_CLIP_PLANE2 , frontClippingPlane);
 
-    //
-    // draw points cloud
-    //
-    drawPointCloud();
-
-
-    // draw world cordinate system
-    drawLines(_axesLines);
-
     if (_show_aufgabe_1 == true)
     {
+        // draw world cordinate system
+        drawLines(_axesLines);
         aufgabe_1();
     } else if (_show_aufgabe_2 == true)
     {
+        // draw world cordinate system
+        drawLines(_axesLines);
         aufgabe_2();
-    } else if (_show_aufgabe_3 == true)
+    } else if (_show_aufgabe_3_1 == true)
     {
-        aufgabe_3();
+        //
+        // draw points cloud
+        //
+        drawPointCloud();
+
+        aufgabe_3_1();
+    } else if (_show_aufgabe_3_2 == true)
+    {
+        //
+        // draw points cloud
+        //
+        drawPointCloud();
+        aufgabe_3_2();
     }
 }
 
@@ -379,14 +385,99 @@ void GLWidget::aufgabe_2()
     // reconstruct cubes wrong
 }
 
-void GLWidget::aufgabe_3()
+void GLWidget::aufgabe_3_1()
 {
-
+    if (_load_point_cloud) {
+        load_point_cloud();
+    }
     constructBalanced3DTree(0, x_array.size()-2, NULL, 0, 5);
-
-    drawKDTreeLines(_kdTreeLines);
+    if (!_disable_tree)
+    {
+        drawKDTreeLines(_kdTreeLines);
+    }
 }
 
+void GLWidget::aufgabe_3_2()
+{
+    if (_load_point_cloud) {
+        load_point_cloud();
+    }
+    std::vector<std::pair<QVector3D, QColor> > octtree_lines;
+
+    Octtree new_tree = init_octtree(octtree_lines);
+    if (!_disable_tree)
+    {
+        drawLines(octtree_lines);
+    }
+}
+
+Octtree GLWidget::init_octtree(std::vector<std::pair<QVector3D, QColor> > octtree_lines)
+{
+    QVector3D point1 = QVector3D(-6,-4,-6);
+    QVector3D point2 = QVector3D(4,6,4);
+    float length = 2.0;
+    Octtree *octtree = new Octtree(point1, point2, length);
+
+    //octtree_lines.push_back(std::make_pair(point1, QColor(1,0,0)));
+    //octtree_lines.push_back(std::make_pair(point2, QColor(1,0,0)));
+    //drawLines(octtree_lines);
+
+    // add points into octtree
+    for (QVector3D point: x_array)
+    {
+        if (!octtree->insert_point(point, octtree->root))
+        {
+        // printf("Point outside of octtree! x: %f, y: %f, z: %f\n", point.x(), point.y(), point.z());
+        }
+    }
+
+    // read octtree_lines
+    int depth = 4;
+    octtree->get_octtree_lines(octtree_lines, QColor(0,0,1), depth, octtree->root);
+    return *octtree;
+}
+
+void GLWidget::load_point_cloud()
+{
+    _load_point_cloud = false;
+    x_array.clear();
+    y_array.clear();
+    z_array.clear();
+
+    pointcloud.loadPLY(_point_cloud_path);
+    printf("%f %f %f",pointcloud.getMax().x(), pointcloud.getMax().y(), pointcloud.getMax().z());
+    printf("%f %f %f",pointcloud.getMin().x(), pointcloud.getMin().y(), pointcloud.getMin().z());
+    const QVector<float>& pointsData = pointcloud.getData();
+    QVectorIterator<float> i(pointsData);
+    const float *p = pointsData.data();
+    for (size_t i = 0; i < pointsData.size(); ++i) {
+
+      float x, y, z;
+
+      x = *p++;
+      y = *p++;
+      z = *p++;
+      i = *p++;
+      QVector3D vec = QVector3D(x,y,z);
+      x_array.push_back(vec);
+      y_array.push_back(vec);
+      z_array.push_back(vec);
+
+    }
+
+    std::sort(x_array.begin(), x_array.end(), compareX);
+    std::sort(y_array.begin(), y_array.end(), compareY);
+    std::sort(z_array.begin(), z_array.end(), compareZ);
+    std::cout << "sorting done for x, y, z Arrays in Task 3"<< std::endl;
+    //for (auto x : x_array)
+    //    std::cout << "x[" << x.x() << ", " << x.y() << ", " << x.z() << "] "<< std::endl;
+    //for (auto y : y_array)
+    //    std::cout << "y[" << y.x() << ", " << y.y() << ", " << y.z()<< "] "<< std::endl;
+    //for (auto z : z_array)
+    //    std::cout << "z[" << z.x() << ", " << z.y() << ", " << z.z() << "] "<< std::endl;
+
+    update();
+}
 
 void GLWidget::constructBalanced3DTree(int left, int right, Tree * node, int d, int maxLvl)
 {
@@ -420,14 +511,10 @@ void GLWidget::constructBalanced3DTree(int left, int right, Tree * node, int d, 
             }
 
             constructBalanced3DTree(left, m-1, node->left, (d + 1) % 3, maxLvl - 1);
-            constructBalanced3DTree(m-1, right, node->right, (d + 1 ) % 3, maxLvl - 1);
+            constructBalanced3DTree(m+1, right, node->right, (d + 1 ) % 3, maxLvl - 1);
         }
     }
-
-
-
 }
-
 
 void GLWidget::partitionField(std::vector<QVector3D> array, int left, int right, QVector3D medianVector, int m, std::string direction)
 {
@@ -730,10 +817,10 @@ QVector3D GLWidget::centralProjection(float focalLength, QVector3D vertex, QVect
 void GLWidget::drawLines(std::vector<std::pair<QVector3D, QColor>> quader)
 {
   glBegin(GL_LINES);
-  QMatrix4x4 mvMatrix = _cameraMatrix * _worldMatrix;
+  QMatrix4x4 mvMatrix = _projectionMatrix * _cameraMatrix * _worldMatrix;
   mvMatrix.scale(0.05f); // make it small
   for (auto vertex : quader) {
-    const auto translated = _projectionMatrix * mvMatrix * vertex.first;
+    const auto translated = mvMatrix * vertex.first;
     glColor3f(vertex.second.red(), vertex.second.green(), vertex.second.blue());
     glVertex3f(translated.x(), translated.y(), translated.z());
   }
@@ -864,12 +951,19 @@ void GLWidget::setPointSize(size_t size)
 void GLWidget::openFileDialog()
 {
     const QString filePath = QFileDialog::getOpenFileName(this, tr("Open PLY file"), "", tr("PLY Files (*.ply)"));
-     if (!filePath.isEmpty())
-     {
-         std::cout << filePath.toStdString() << std::endl;
-         pointcloud.loadPLY(filePath);
-         update();
-     }
+
+    if (_show_aufgabe_1 || _show_aufgabe_2)
+    {
+        return;
+    }
+
+    if (!filePath.isEmpty())
+    {
+        _point_cloud_path = filePath;
+        std::cout << filePath.toStdString() << std::endl;
+        load_point_cloud();
+        update();
+    }
 }
 
 void GLWidget::radioButton1Clicked()
@@ -877,11 +971,8 @@ void GLWidget::radioButton1Clicked()
     // TODO: toggle to Jarvis' march
     _show_aufgabe_1 = true;
     _show_aufgabe_2 = false;
-    _show_aufgabe_3 = false;
-    pointcloud._pointsData.clear();
-    x_array.clear();
-    y_array.clear();
-    z_array.clear();
+    _show_aufgabe_3_1 = false;
+    _show_aufgabe_3_2 = false;
 
     update();
 }
@@ -890,59 +981,31 @@ void GLWidget::radioButton2Clicked()
 {
     _show_aufgabe_1 = false;
     _show_aufgabe_2 = true;
-    _show_aufgabe_3 = false;
-    pointcloud._pointsData.clear();
-    x_array.clear();
-    y_array.clear();
-    z_array.clear();
+    _show_aufgabe_3_1 = false;
+    _show_aufgabe_3_2 = false;
 
     update();
 }
-
 
 void GLWidget::radioButton3Clicked()
 {
     _show_aufgabe_1 = false;
     _show_aufgabe_2 = false;
-    _show_aufgabe_3 = true;
-    pointcloud.loadPLY("C:/Users/ismoz/Documents/00_Studium/Aufgabe1/data/bunny.ply");
-    x_array.clear();
-    y_array.clear();
-    z_array.clear();
-
-    const QVector<float>& pointsData = pointcloud.getData();
-    QVectorIterator<float> i(pointsData);
-    const float *p = pointsData.data();
-    for (size_t i = 0; i < pointsData.size(); ++i) {
-
-      float x, y, z;
-
-      x = *p++;
-      y = *p++;
-      z = *p++;
-      i = *p++;
-      QVector3D vec = QVector3D(x,y,z);
-      x_array.push_back(vec);
-      y_array.push_back(vec);
-      z_array.push_back(vec);
-
-    }
-
-    std::sort(x_array.begin(), x_array.end(), compareX);
-    std::sort(y_array.begin(), y_array.end(), compareY);
-    std::sort(z_array.begin(), z_array.end(), compareZ);
-    std::cout << "sorting done for x, y, z Arrays in Task 3"<< std::endl;
-    //for (auto x : x_array)
-    //    std::cout << "x[" << x.x() << ", " << x.y() << ", " << x.z() << "] "<< std::endl;
-    //for (auto y : y_array)
-    //    std::cout << "y[" << y.x() << ", " << y.y() << ", " << y.z()<< "] "<< std::endl;
-    //for (auto z : z_array)
-    //    std::cout << "z[" << z.x() << ", " << z.y() << ", " << z.z() << "] "<< std::endl;
+    _show_aufgabe_3_1 = true;
+    _show_aufgabe_3_2 = false;
 
     update();
 }
 
+void GLWidget::radioButton4Clicked()
+{
+    _show_aufgabe_1 = false;
+    _show_aufgabe_2 = false;
+    _show_aufgabe_3_1 = false;
+    _show_aufgabe_3_2 = true;
 
+    update();
+}
 
 void GLWidget::disable_cubes()
 {
@@ -1010,6 +1073,16 @@ void GLWidget::disable_reconstruction()
         _disable_reconstruction = false;
     } else {
         _disable_reconstruction = true;
+    }
+    update();
+}
+
+void GLWidget::disable_tree()
+{
+    if (_disable_tree == true) {
+        _disable_tree = false;
+    } else {
+        _disable_tree = true;
     }
     update();
 }

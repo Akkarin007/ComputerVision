@@ -60,7 +60,14 @@
       <item>
        <widget class="QRadioButton" name="radioButton">
         <property name="text">
-         <string>Aufgabe 3</string>
+         <string>Aufgabe 3 kdtree</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioButton_3">
+        <property name="text">
+         <string>Aufgabe 3 octtree</string>
         </property>
        </widget>
       </item>
@@ -173,6 +180,20 @@
        <widget class="QCheckBox" name="checkBox_7">
         <property name="text">
          <string>Image Plane</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_8">
+        <property name="text">
+         <string>Disable Tree</string>
         </property>
        </widget>
       </item>

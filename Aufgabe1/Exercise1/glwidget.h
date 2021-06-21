@@ -20,6 +20,7 @@
 #include "camera.h"
 #include "pointcloud.h"
 #include "tree.h"
+#include "octtree.h"
 
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -35,6 +36,7 @@ public slots:
     void radioButton1Clicked();
     void radioButton2Clicked();
     void radioButton3Clicked();
+    void radioButton4Clicked();
     void disable_rays();
     void disable_cubes();
     void disable_projection();
@@ -42,6 +44,7 @@ public slots:
     void disable_camera_1();
     void disable_camera_2();
     void disable_reconstruction();
+    void disable_tree();
     void setPointSize(size_t size);
     void attachCamera(QSharedPointer<Camera> camera);
 
@@ -72,6 +75,7 @@ private:
   void initImagePlane(std::vector<std::pair<QVector3D, QColor>> &imagePlaneLines, std::vector<std::pair<QVector3D, QColor>> &imagePlaneAxes, QVector4D positionInWorld, float size, float focal_length, QVector3D rotation, QVector4D imagePrinciplePoint);
   void initProjection(std::vector<std::pair<QVector3D, QColor>> quader, std::vector<std::pair<QVector3D, QColor>> &projectionQuader, int focalLength, QVector4D projectionCenter, QVector4D imagePrinciplePoint, QVector3D camera_rotation);
   void initStereoVisionNormalCaseReconstruction(std::vector<std::pair<QVector3D, QColor>> projection1, std::vector<std::pair<QVector3D, QColor>> projection2, std::vector<std::pair<QVector3D, QColor>> &reconstruction, float focalLength, QVector3D camera_1_pos, QVector3D camera_2_pos);
+
   QVector4D calculateImagePrinciplePoint(float focalLength, QVector4D positionCamera, QVector3D cameraRotation);
   QVector4D calculate_image_plane_equation(QVector3D imagePrinciplePoint, QVector3D rotation);
   
@@ -94,14 +98,18 @@ private:
 
   void aufgabe_1();
   void aufgabe_2();
-  void aufgabe_3();
+  void aufgabe_3_1();
+  void aufgabe_3_2();
+  Octtree init_octtree(std::vector<std::pair<QVector3D, QColor> >);
+  void load_point_cloud();
   void constructBalanced3DTree(int left, int right, Tree * node, int d, int maxLvl);
   void partitionField(std::vector<QVector3D> test, int left, int right, QVector3D medianVec, int m, std::string dir);
   std::vector<std::pair<QVector3D, QColor> > _kdTreeLines;
 
   bool _show_aufgabe_1 = false;
-  bool _show_aufgabe_2 = true;
-  bool _show_aufgabe_3 = false;
+  bool _show_aufgabe_2 = false;
+  bool _show_aufgabe_3_1 = false;
+  bool _show_aufgabe_3_2 = true;
   bool _disable_rays = false;
   bool _disable_cubes = false;
   bool _disable_projection = false;
@@ -109,6 +117,7 @@ private:
   bool _disable_camera1 = false;
   bool _disable_camera2 = false;
   bool _disable_reconstruction = false;
+  bool _disable_tree = false;
 
   QMatrix4x4 _projectionMatrix;
   QMatrix4x4 _cameraMatrix;
@@ -118,6 +127,8 @@ private:
   QVector3D _rotation_camera_2 = QVector3D(0, 2, 0);
 
   PointCloud pointcloud;
+  bool _load_point_cloud = true;
+  QString _point_cloud_path = "C:/Users/keller/Desktop/bunny.ply";
 
   QSharedPointer<Camera> _currentCamera;
   QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint, QVector3D rotation, QVector4D image_plane);
