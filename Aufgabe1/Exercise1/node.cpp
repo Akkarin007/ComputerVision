@@ -7,13 +7,11 @@ Node::Node(QVector3D new_near_bot_left, QVector3D new_far_top_right, float new_l
     far_top_right = new_far_top_right;
     length = new_length;
     is_leaf = false;
-    is_empty = true;
+    is_set = false;
 }
 
 void Node::split()
 {
-    QVector3D *tmp_leaf_value = leaf_value;
-
     float new_length = length/2;
 
     children[0] = new Node(QVector3D(near_bot_left.x() + new_length, near_bot_left.y() + new_length, near_bot_left.z()),
@@ -41,130 +39,36 @@ void Node::split()
                            QVector3D(far_top_right.x(), far_top_right.y() - new_length, far_top_right.z()), new_length);
 
     // remove leafe attribute
-    this->leaf_value = nullptr;
     this->is_leaf = false;
-
-    // add leave attribute
-    int index = get_index(*tmp_leaf_value);
-    {
-        set_leaf(index, tmp_leaf_value);
-    }
 }
 
-void Node::set_leaf(int index, QVector3D *tmp_leaf_value)
+void Node::set_leaf(QVector3D tmp_leaf_value)
 {
-    if (index == -2)
-    {
-        this->is_empty = false;
-        this->is_leaf = true;
-        this->leaf_value = tmp_leaf_value;
-    }
-    else if (index == -1)
-    {
-        return;
-    }
-    else
-    {
-        this->children[index]->is_empty = false;
-        this->children[index]->is_leaf = true;
-        this->children[index]->leaf_value = tmp_leaf_value;
-    }
-}
-
-void Node::set_leaf_2(QVector3D *tmp_leaf_value)
-{
-    this->is_empty = false;
+    this->is_set = true;
     this->is_leaf = true;
     this->leaf_value = tmp_leaf_value;
 }
 
 int Node::get_index(QVector3D val)
 {
-    if (near_bot_left.z() <= val.z() && near_bot_left.z() + length > val.z())
+    //printf("%f, %f, %f \n", val.x(), val.y(), val.z());
+    int index = 0;
+    for (Node * new_node: this->children)
     {
-        return get_index_0_3(val);
+        Node tmp = *new_node;
+        if (       val.x() >= (tmp.near_bot_left).x()
+                && val.x() <= tmp.far_top_right.x()
+                && val.y() >= tmp.near_bot_left.y()
+                && val.y() <= tmp.far_top_right.y()
+                && val.z() >= tmp.near_bot_left.z()
+                && val.z() <= tmp.far_top_right.z())
+        {
+            //printf("index %d\n", index);
+            return index;
+        }
+        index = index + 1;
     }
-    else if (far_top_right.z() - length <= val.z() && far_top_right.z() >= val.z())
-    {
-        return get_index_4_7(val);
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-int Node::get_index_0_3(QVector3D val)
-{
-    if (near_bot_left.x() <= val.x() && near_bot_left.x() + length > val.x())
-    {
-        if (near_bot_left.y() <= val.y() && near_bot_left.y() + length > val.y())
-        {
-            return 2;
-        }
-        else if (far_top_right.y() - length <= val.y() && far_top_right.y() >= val.y())
-        {
-            return 1;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-    else if (far_top_right.x() - length <= val.x() && far_top_right.x() >= val.x())
-    {
-        if (near_bot_left.y() <= val.y() && near_bot_left.y() + length > val.y())
-        {
-            return 3;
-        }
-        else if (far_top_right.y() - length <= val.y() && far_top_right.y() >= val.y())
-        {
-            return 0;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-int Node::get_index_4_7(QVector3D val)
-{
-    if (near_bot_left.x() <= val.x() && near_bot_left.x() + length > val.x())
-    {
-        if (near_bot_left.y() <= val.y() && near_bot_left.y() + length > val.y())
-        {
-            return 6;
-        }
-        else if (far_top_right.y() - length <= val.y() && far_top_right.y() >= val.y())
-        {
-            return 5;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-    else if (far_top_right.x() - length <= val.x() && far_top_right.x() >= val.x())
-    {
-        if (near_bot_left.y() <= val.y() && near_bot_left.y() + length > val.y())
-        {
-            return 7;
-        }
-        else if (far_top_right.y() - length <= val.y() && far_top_right.y() >= val.y())
-        {
-            return 4;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-    else
+    if (index == 8)
     {
         return -1;
     }
@@ -172,7 +76,66 @@ int Node::get_index_4_7(QVector3D val)
 
 QVector3D Node::get_value()
 {
-    QVector3D tmp = *leaf_value;
+    QVector3D tmp = this->leaf_value;
     return tmp;
-};
+}
+
+bool Node::insert_point(QVector3D point, int depth)
+{
+    if (    !( point.x() >= (this->near_bot_left).x()
+            && point.x() <= this->far_top_right.x()
+            && point.y() >= this->near_bot_left.y()
+            && point.y() <= this->far_top_right.y()
+            && point.z() >= this->near_bot_left.z()
+            && point.z() <= this->far_top_right.z()))
+    {
+        return false;
+    }
+
+    if (depth == -1) {
+        return false;
+    }
+
+    // handle leaf
+    if (this->is_leaf) {
+
+        // if in leafe return
+        QVector3D tmp = this->get_value();
+        if (tmp.x() == point.x() && tmp.y() == point.y() && tmp.z() == point.z())
+        {
+            return true;
+        }
+
+        //else split
+        this->split();
+        this->leaf_value = QVector3D();
+        //printf("reset point\n ");
+        int index = this->get_index(tmp);
+        this->children[index]->set_leaf(tmp);
+    }
+
+    // handle empty node
+    if (!this->is_set)
+    {
+        this->set_leaf(point);
+        return true;
+    }
+
+    // get index for new fitting node
+    int index = this->get_index(point);
+    if (index > -1)
+    {
+        bool tmp = this->children[index]->insert_point(point, depth - 1);
+        if (tmp)
+        {
+            return true;
+        }
+    }
+    else
+    {
+        printf("index out of bounds\n");
+        printf("%f, %f, %f \n", point.x(), point.y(), point.z());
+    }
+    return false;
+}
 

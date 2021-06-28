@@ -7,19 +7,19 @@ Octtree::Octtree(QVector3D new_near_bot_left, QVector3D new_far_top_right, float
     this->root = tmp;
 }
 
-void Octtree::get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> &octtree_lines, QColor colour, int depth, Node *current)
+void Octtree::get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> &octtree_lines, QColor colour, int depth, Node current)
 {
 
     // add lines
-    QVector3D point1 = current->near_bot_left;
-    QVector3D point2 = QVector3D(current->far_top_right.x(), current->near_bot_left.y(), current->near_bot_left.z());
-    QVector3D point3 = QVector3D(current->far_top_right.x(), current->far_top_right.y(), current->near_bot_left.z());
-    QVector3D point4 = QVector3D(current->near_bot_left.x(), current->far_top_right.y(), current->near_bot_left.z());
+    QVector3D point1 = current.near_bot_left;
+    QVector3D point2 = QVector3D(current.far_top_right.x(), current.near_bot_left.y(), current.near_bot_left.z());
+    QVector3D point3 = QVector3D(current.far_top_right.x(), current.far_top_right.y(), current.near_bot_left.z());
+    QVector3D point4 = QVector3D(current.near_bot_left.x(), current.far_top_right.y(), current.near_bot_left.z());
 
-    QVector3D point5 = QVector3D(current->near_bot_left.x(), current->near_bot_left.y(), current->far_top_right.z());
-    QVector3D point6 = QVector3D(current->far_top_right.x(), current->near_bot_left.y(), current->far_top_right.z());
-    QVector3D point7 = current->far_top_right;
-    QVector3D point8 = QVector3D(current->near_bot_left.x(), current->far_top_right.y(), current->far_top_right.z());
+    QVector3D point5 = QVector3D(current.near_bot_left.x(), current.near_bot_left.y(), current.far_top_right.z());
+    QVector3D point6 = QVector3D(current.far_top_right.x(), current.near_bot_left.y(), current.far_top_right.z());
+    QVector3D point7 = current.far_top_right;
+    QVector3D point8 = QVector3D(current.near_bot_left.x(), current.far_top_right.y(), current.far_top_right.z());
 
     // front lines:
     octtree_lines.push_back(std::make_pair(point1, colour));
@@ -61,43 +61,24 @@ void Octtree::get_octtree_lines(std::vector<std::pair<QVector3D, QColor>> &octtr
     octtree_lines.push_back(std::make_pair(point8, colour));
 
     // handle depth
-    if (depth == 0 || current->is_empty)
+    if (depth == 0 || !current.is_set || current.is_leaf)
     {
         return;
     }
 
     // get new nodes
-    for (Node *new_current: root->children)
+    for (Node *new_current: current.children)
     {
-
-        get_octtree_lines(octtree_lines, colour, depth - 1, new_current);
+        get_octtree_lines(octtree_lines, colour, depth - 1, *new_current);
     }
 }
 
 
-bool Octtree::insert_point(QVector3D point, Node *current)
+bool Octtree::insert_point(QVector3D point)
 {
     // handle leaf
-    if (current->is_leaf) {
-        current->split();
-    }
-
-    // handle nullpointer in children
-    if (current->is_empty)
-    {
-        current->set_leaf_2(&point);
+    if (this->root->insert_point(point, 9000)) {
         return true;
-    }
-
-    // get index for new fitting node
-    int index = current->get_index(point);
-    if (index > -1)
-    {
-
-        if (insert_point(point, current->children[index]))
-        {
-            return true;
-        }
     }
     return false;
 }

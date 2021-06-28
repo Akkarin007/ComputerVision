@@ -421,8 +421,8 @@ void GLWidget::aufgabe_3_2()
 
 Octtree GLWidget::init_octtree(std::vector<std::pair<QVector3D, QColor> > &octtree_lines)
 {
-    QVector3D point1 = QVector3D(-6,-4,-6);
-    QVector3D point2 = QVector3D(4,6,4);
+    QVector3D point1 = QVector3D(-6,-5,-6);
+    QVector3D point2 = QVector3D(4,5,4);
     float length = 10.0;
     Octtree *octtree = new Octtree(point1, point2, length);
 
@@ -433,15 +433,15 @@ Octtree GLWidget::init_octtree(std::vector<std::pair<QVector3D, QColor> > &octtr
     // add points into octtree
     for (QVector3D point: x_array)
     {
-        if (!octtree->insert_point(point, octtree->root))
+        if (!octtree->insert_point(point))
         {
-        // printf("Point outside of octtree! x: %f, y: %f, z: %f\n", point.x(), point.y(), point.z());
+            //printf("Point outside of octtree! x: %f, y: %f, z: %f\n", point.x(), point.y(), point.z());
         }
     }
 
     // read octtree_lines
-    int depth = 4;
-    octtree->get_octtree_lines(octtree_lines, QColor(0,0,1), depth, octtree->root);
+    int depth = 5;
+    octtree->get_octtree_lines(octtree_lines, QColor(0,0,1), depth, *octtree->root);
     return *octtree;
 }
 

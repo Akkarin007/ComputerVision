@@ -130,7 +130,7 @@ private:
 
   PointCloud pointcloud;
   bool _load_point_cloud = true;
-  QString _point_cloud_path = "C:/Users/ismoz/Documents/00_Studium/Aufgabe1/data/bunny.ply";
+  QString _point_cloud_path = "C:/Users/keller/Desktop/bunny.ply";
 
   QSharedPointer<Camera> _currentCamera;
   QVector3D centralProjection(float focalLength, QVector3D vertex, QVector3D projectionCenter, QVector3D imagePrinciplePoint, QVector3D rotation, QVector4D image_plane);
