@@ -14,27 +14,29 @@ void Node::split()
 {
     float new_length = length/2;
 
+    //NE_1
     children[0] = new Node(QVector3D(near_bot_left.x() + new_length, near_bot_left.y() + new_length, near_bot_left.z()),
                            QVector3D(far_top_right.x(), far_top_right.y(), far_top_right.z() - new_length), new_length);
 
+    //NW_1
     children[1] = new Node(QVector3D(near_bot_left.x(), near_bot_left.y() + new_length, near_bot_left.z()),
                            QVector3D(far_top_right.x() - new_length, far_top_right.y(), far_top_right.z() - new_length),new_length);
-
+    //SW_1
     children[2] = new Node(QVector3D(near_bot_left.x(), near_bot_left.y(), near_bot_left.z()),
                            QVector3D(far_top_right.x() - new_length, far_top_right.y() - new_length, far_top_right.z() - new_length), new_length);
-
+    //SE_1
     children[3] = new Node(QVector3D(near_bot_left.x() + new_length, near_bot_left.y(), near_bot_left.z()),
                            QVector3D(far_top_right.x(), far_top_right.y() - new_length, far_top_right.z() - new_length), new_length);
-
+    //NE_2
     children[4] = new Node(QVector3D(near_bot_left.x() + new_length, near_bot_left.y() + new_length, near_bot_left.z() + new_length),
                            QVector3D(far_top_right.x(), far_top_right.y(), far_top_right.z()), new_length);
-
+    //NW_2
     children[5] = new Node(QVector3D(near_bot_left.x(), near_bot_left.y() + new_length, near_bot_left.z() + new_length),
                            QVector3D(far_top_right.x() - new_length, far_top_right.y(), far_top_right.z()), new_length);
-
+    //SW_2
     children[6] = new Node(QVector3D(near_bot_left.x(), near_bot_left.y(), near_bot_left.z() + new_length),
                            QVector3D(far_top_right.x() - new_length, far_top_right.y() - new_length, far_top_right.z()), new_length);
-
+    //SE_2
     children[7] = new Node(QVector3D(near_bot_left.x() + new_length, near_bot_left.y(), near_bot_left.z() + new_length),
                            QVector3D(far_top_right.x(), far_top_right.y() - new_length, far_top_right.z()), new_length);
 
@@ -82,6 +84,7 @@ QVector3D Node::get_value()
 
 bool Node::insert_point(QVector3D point, int depth)
 {
+    //is in boundingBox?
     if (    !( point.x() >= (this->near_bot_left).x()
             && point.x() <= this->far_top_right.x()
             && point.y() >= this->near_bot_left.y()
@@ -101,6 +104,7 @@ bool Node::insert_point(QVector3D point, int depth)
 
         // if in leafe return
         QVector3D tmp = this->get_value();
+        // if same Point as its node Value, return.
         if (tmp.x() == point.x() && tmp.y() == point.y() && tmp.z() == point.z())
         {
             return true;
@@ -125,11 +129,7 @@ bool Node::insert_point(QVector3D point, int depth)
     int index = this->get_index(point);
     if (index > -1)
     {
-        bool tmp = this->children[index]->insert_point(point, depth - 1);
-        if (tmp)
-        {
-            return true;
-        }
+        return this->children[index]->insert_point(point, depth - 1);
     }
     else
     {

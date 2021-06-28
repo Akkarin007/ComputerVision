@@ -415,7 +415,8 @@ void GLWidget::aufgabe_3_2()
     Octtree new_tree = init_octtree(octtree_lines);
     if (!_disable_tree)
     {
-        drawLines(octtree_lines);
+        drawKDTreeLines(octtree_lines);
+
     }
 }
 
